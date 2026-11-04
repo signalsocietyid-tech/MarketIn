@@ -13,13 +13,14 @@ import { INDUSTRIES, LOCATIONS, NICHES } from "@/lib/constants";
 
 // Illustrative development data. All companies, people and figures below are fictional.
 // Demo accounts share the password defined in DEMO_PASSWORD (see README).
+// Ids here are readable keys; src/lib/db/demo-data.ts turns them into stable UUIDs.
 export const DEMO_PASSWORD = "demo1234";
 
 const DAY = 86_400_000;
 const daysAgo = (n: number) => new Date(Date.now() - n * DAY).toISOString();
 const daysAhead = (n: number) => new Date(Date.now() + n * DAY).toISOString();
 
-export function buildSeed(passwordHash: string): Database {
+export function buildSeed(): Database {
   const user = (
     id: string,
     email: string,
@@ -31,7 +32,6 @@ export function buildSeed(passwordHash: string): Database {
     email,
     name,
     role,
-    passwordHash,
     status: "active",
     verification: "verified",
     createdAt: daysAgo(120),

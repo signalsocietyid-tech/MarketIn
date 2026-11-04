@@ -27,6 +27,7 @@ import { getMarketplaceStats } from "@/lib/data/queries";
 import { getAdminOverview } from "@/lib/data/admin-queries";
 import { APPLICATION_STATUS_LABEL, CATEGORY_META, SEGMENT_LABEL, SEGMENTS } from "@/lib/constants";
 import { formatDate, formatIDR, formatIDRShort, timeAgo } from "@/lib/utils";
+import { isEmbedded } from "@/lib/db";
 
 export const metadata = { title: "Overview" };
 
@@ -34,7 +35,7 @@ const SEGMENT_ICON = { business: Building2, sales: TrendingUp, creator: Megaphon
 
 export default async function AdminOverviewPage() {
   const [stats, overview] = await Promise.all([getMarketplaceStats(), getAdminOverview()]);
-  const isMock = (process.env.DATA_PROVIDER ?? "mock") === "mock";
+  const isMock = isEmbedded();
 
   const usersBySegment = SEGMENTS.map((s) => ({ label: SEGMENT_LABEL[s], value: stats.byRole[s], href: `/admin/users?role=${s}` }));
   const appsByStatus = overview.applicationsByStatus.map((a) => ({

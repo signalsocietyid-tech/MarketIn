@@ -1,6 +1,6 @@
 import "server-only";
 import type { FeatureKey, PlanLimits, Role, User } from "@/lib/types";
-import { db } from "@/lib/data/store";
+import { data } from "@/lib/db";
 import { countApplicationsThisMonth, getEffectivePlan } from "@/lib/data/queries";
 
 /**
@@ -42,7 +42,7 @@ export type UsageMeter = { key: keyof PlanLimits; label: string; used: number; l
 export async function getUsage(user: Pick<User, "id" | "role">): Promise<UsageMeter[]> {
   const plan = await getEffectivePlan(user);
   if (!plan) return [];
-  const d = db();
+  const d = await data();
   const savedUsed = d.saved.filter((s) => s.userId === user.id).length;
   const meters: UsageMeter[] = [];
   if (user.role === "business") {

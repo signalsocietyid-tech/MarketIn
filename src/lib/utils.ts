@@ -54,8 +54,9 @@ export function initials(name: string) {
     .join("");
 }
 
-export function uid(prefix: string) {
-  return `${prefix}_${Math.random().toString(36).slice(2, 10)}${Date.now().toString(36).slice(-4)}`;
+/** New primary key for a database row. */
+export function newId() {
+  return crypto.randomUUID();
 }
 
 /** Deterministic pastel-ish tone for avatars based on a string. */

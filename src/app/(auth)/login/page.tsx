@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { LoginForm } from "@/components/auth/login-form";
 import { DemoAccess } from "@/components/auth/demo-access";
 import { getCurrentUser } from "@/lib/auth/session";
+import { demoRoles } from "@/lib/demo";
 
 export const metadata: Metadata = { title: "Log in" };
 
@@ -12,6 +13,7 @@ export default async function LoginPage(props: PageProps<"/login">) {
   const next = typeof sp.next === "string" ? sp.next : undefined;
   const user = await getCurrentUser();
   if (user) redirect(user.role === "admin" ? "/admin" : "/dashboard");
+  const demo = demoRoles();
 
   return (
     <div className="w-full max-w-sm">
@@ -26,7 +28,7 @@ export default async function LoginPage(props: PageProps<"/login">) {
           Create a free account
         </Link>
       </p>
-      {(process.env.DATA_PROVIDER ?? "mock") === "mock" && <DemoAccess />}
+      {demo.length > 0 && <DemoAccess roles={demo} />}
     </div>
   );
 }

@@ -6,9 +6,12 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test:db": "node --conditions=react-server --import tsx scripts/db-smoke.ts",
+    "db:demo": "node --conditions=react-server --import tsx scripts/db-load-demo.ts"
   },
   "dependencies": {
+    "@electric-sql/pglite": "^0.5.15",
     "@hookform/resolvers": "^7.0.2",
     "@supabase/ssr": "^0.12.7",
     "@supabase/supabase-js": "^2.118.0",
@@ -16,6 +19,7 @@
     "clsx": "^2.1.1",
     "lucide-react": "^1.67.0",
     "next": "16.4.5",
+    "postgres": "^4.0.0",
     "radix-ui": "^1.8.1",
     "react": "19.3.0",
     "react-dom": "19.3.0",
@@ -27,6 +31,7 @@
     "zod": "^4.6.7"
   },
   "devDependencies": {
+    "@electric-sql/pglite-socket": "^0.2.18",
     "@tailwindcss/turbopack": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
@@ -34,6 +39,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.4.5",
     "tailwindcss": "^4",
+    "tsx": "^4.23.15",
     "typescript": "^5"
   }
 }

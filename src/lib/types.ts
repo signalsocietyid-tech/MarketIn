@@ -10,7 +10,6 @@ export type VerificationStatus = "unverified" | "pending" | "verified" | "reject
 export interface User {
   id: string;
   email: string;
-  passwordHash: string;
   role: Role;
   name: string;
   status: AccountStatus;

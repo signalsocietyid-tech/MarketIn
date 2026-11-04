@@ -1,14 +1,15 @@
 import "server-only";
 import type { ApplicationStatus, MarketCategory, Opportunity } from "@/lib/types";
-import { db } from "@/lib/data/store";
+import { data } from "@/lib/db";
 import { toOpportunityView, type OpportunityView } from "@/lib/data/queries";
 
 // Extra read helpers for the agency / partner dashboard pages.
 
 /** Number of proposals (applications) submitted on behalf of each talent in an agency's roster. */
 export async function getProposalCountsByTalent(agencyId: string): Promise<Record<string, number>> {
+  const d = await data();
   const counts: Record<string, number> = {};
-  for (const a of db().applications) {
+  for (const a of d.applications) {
     if (a.applicantId === agencyId && a.talentId) counts[a.talentId] = (counts[a.talentId] ?? 0) + 1;
   }
   return counts;
@@ -48,7 +49,7 @@ const STATUS_RANK: Record<ApplicationStatus, number> = {
  * listing the agency has already proposed to (whatever its current status).
  */
 export async function getAgencyInbox(agencyId: string, opts: { includePremium: boolean }): Promise<InboxItem[]> {
-  const d = db();
+  const d = await data();
   const agency = d.agencies.find((a) => a.userId === agencyId);
   const services = agency?.services ?? [];
 
@@ -100,7 +101,7 @@ export async function getAgencyInbox(agencyId: string, opts: { includePremium: b
     // Closed or paused listings only stay visible when the agency already proposed.
     if (!section || (!isOpen && !proposal)) continue;
     items.push({
-      opportunity: toOpportunityView(o),
+      opportunity: toOpportunityView(d, o),
       section,
       reason,
       locked: o.premium && !opts.includePremium,

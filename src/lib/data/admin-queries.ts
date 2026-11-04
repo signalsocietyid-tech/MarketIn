@@ -14,7 +14,8 @@ import type {
   VerificationStatus,
 } from "@/lib/types";
 import { APPLICATION_STATUSES, OPPORTUNITY_TYPE_LABEL, SEGMENTS } from "@/lib/constants";
-import { db } from "./store";
+import { data } from "@/lib/db";
+import type { Database } from "@/lib/types";
 import { buildProfileView } from "./queries";
 
 // Read-side helpers for the admin console. All functions are async so they can
@@ -27,14 +28,15 @@ function isLive(s: UserSubscription) {
 }
 
 /** Display name + avatar for any user (company/agency name for organisations). */
-function identity(user: User | undefined) {
+function identity(d: Database, user: User | undefined) {
   if (!user) return { id: "", name: "Deleted user", email: "", role: "admin" as const, avatarUrl: undefined as string | undefined };
-  const view = buildProfileView(user);
+  const view = buildProfileView(d, user);
   return { id: user.id, name: view?.name ?? user.name, email: user.email, role: user.role, avatarUrl: view?.avatarUrl };
 }
 
 export async function getAdminUnreadCount(userId: string) {
-  return db().notifications.filter((n) => n.userId === userId && !n.read).length;
+  const d = await data();
+  return d.notifications.filter((n) => n.userId === userId && !n.read).length;
 }
 
 /* ---------------------------------- Users ---------------------------------- */
@@ -57,22 +59,21 @@ export type AdminUserRow = {
 
 export type AdminUserFilters = { q?: string; role?: string; status?: string; verification?: string };
 
-function planFor(userId: string, role: Segment): SubscriptionPlan | undefined {
-  const d = db();
+function planFor(d: Database, userId: string, role: Segment): SubscriptionPlan | undefined {
   const sub = d.subscriptions.find((s) => s.userId === userId && isLive(s));
   const plan = sub ? d.plans.find((p) => p.id === sub.planId) : undefined;
   return plan ?? d.plans.find((p) => p.segment === role && p.tier === "free");
 }
 
 export async function getAdminUsers(f: AdminUserFilters = {}) {
-  const d = db();
+  const d = await data();
   const q = lc(f.q);
   const rows: AdminUserRow[] = [];
   for (const u of d.users) {
     if (u.role === "admin") continue;
     const role = u.role as Segment;
-    const view = buildProfileView(u);
-    const plan = planFor(u.id, role);
+    const view = buildProfileView(d, u);
+    const plan = planFor(d, u.id, role);
     const row: AdminUserRow = {
       id: u.id,
       name: view?.name ?? u.name,
@@ -126,7 +127,7 @@ export type AdminOpportunityRow = {
 export type AdminOpportunityFilters = { q?: string; category?: string; status?: string; flagged?: string };
 
 export async function getAdminOpportunities(f: AdminOpportunityFilters = {}) {
-  const d = db();
+  const d = await data();
   const q = lc(f.q);
   const all = d.opportunities;
   const rows: AdminOpportunityRow[] = all
@@ -177,7 +178,7 @@ export type AdminApplicationRow = {
 };
 
 export async function getAdminApplications(f: { q?: string; status?: string } = {}) {
-  const d = db();
+  const d = await data();
   const q = lc(f.q);
   const counts = Object.fromEntries(APPLICATION_STATUSES.map((s) => [s, 0])) as Record<ApplicationStatus, number>;
   for (const a of d.applications) counts[a.status] += 1;
@@ -186,7 +187,7 @@ export async function getAdminApplications(f: { q?: string; status?: string } = 
   for (const a of d.applications) {
     const o = d.opportunities.find((x) => x.id === a.opportunityId);
     if (!o) continue;
-    const who = identity(d.users.find((u) => u.id === a.applicantId));
+    const who = identity(d, d.users.find((u) => u.id === a.applicantId));
     const talentName = a.talentId ? d.talents.find((t) => t.id === a.talentId)?.name : undefined;
     if (f.status && a.status !== f.status) continue;
     if (q && ![who.name, who.email, talentName ?? "", o.title, o.companyName].join(" ").toLowerCase().includes(q)) continue;
@@ -221,19 +222,19 @@ export type AdminReportRow = Report & {
 };
 
 export async function getAdminReports(f: { status?: string } = {}) {
-  const d = db();
+  const d = await data();
   const counts = { all: d.reports.length, open: 0, resolved: 0, dismissed: 0 };
   for (const r of d.reports) counts[r.status] += 1;
   const rows: AdminReportRow[] = d.reports
     .filter((r) => !f.status || r.status === f.status)
     .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
     .map((r) => {
-      const reporter = identity(d.users.find((u) => u.id === r.reporterId));
+      const reporter = identity(d, d.users.find((u) => u.id === r.reporterId));
       let target: AdminReportRow["target"];
       if (r.targetType === "user") {
         const u = d.users.find((x) => x.id === r.targetId);
         target = u
-          ? { label: identity(u).name, href: `/profiles/${u.id}`, exists: true, userId: u.id, userStatus: u.status }
+          ? { label: identity(d, u).name, href: `/profiles/${u.id}`, exists: true, userId: u.id, userStatus: u.status }
           : { label: "Removed user", href: null, exists: false };
       } else {
         const o = d.opportunities.find((x) => x.id === r.targetId);
@@ -264,7 +265,7 @@ export type AdminSubscriptionRow = UserSubscription & {
 };
 
 export async function getAdminSubscriptions(f: { status?: string } = {}) {
-  const d = db();
+  const d = await data();
   const counts: Record<"all" | SubscriptionStatus, number> = { all: d.subscriptions.length, active: 0, pending_payment: 0, canceled: 0, expired: 0 };
   for (const s of d.subscriptions) counts[s.status] += 1;
   const rows: AdminSubscriptionRow[] = d.subscriptions
@@ -276,7 +277,7 @@ export async function getAdminSubscriptions(f: { status?: string } = {}) {
       return pa - pb || b.createdAt.localeCompare(a.createdAt);
     })
     .map((s) => {
-      const who = identity(d.users.find((u) => u.id === s.userId));
+      const who = identity(d, d.users.find((u) => u.id === s.userId));
       const p = d.plans.find((x) => x.id === s.planId);
       return {
         ...s,
@@ -291,12 +292,12 @@ export async function getAdminSubscriptions(f: { status?: string } = {}) {
 }
 
 export async function getSubscriptionEventLog(limit = 50) {
-  const d = db();
+  const d = await data();
   return [...d.subscriptionEvents]
     .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
     .slice(0, limit)
     .map((e) => {
-      const who = identity(d.users.find((u) => u.id === e.userId));
+      const who = identity(d, d.users.find((u) => u.id === e.userId));
       return { ...e, userName: who.name, planName: d.plans.find((p) => p.id === e.planId)?.name ?? e.planId };
     });
 }
@@ -304,7 +305,7 @@ export async function getSubscriptionEventLog(limit = 50) {
 /* -------------------------------- Taxonomy --------------------------------- */
 
 export async function getAdminCategories(kind: CategoryKind) {
-  const d = db();
+  const d = await data();
   const all = d.categories;
   const counts = {
     industry: all.filter((c) => c.kind === "industry").length,
@@ -313,14 +314,13 @@ export async function getAdminCategories(kind: CategoryKind) {
   };
   const rows = all
     .filter((c) => c.kind === kind)
-    .map((c) => ({ ...c, usage: categoryUsage(kind, c.name) }))
+    .map((c) => ({ ...c, usage: categoryUsage(d, kind, c.name) }))
     .sort((a, b) => Number(b.active) - Number(a.active) || a.name.localeCompare(b.name));
   return { rows, counts };
 }
 
 /** How many records reference a taxonomy value (gives admins context before disabling one). */
-function categoryUsage(kind: CategoryKind, name: string) {
-  const d = db();
+function categoryUsage(d: Database, kind: CategoryKind, name: string) {
   if (kind === "industry")
     return (
       d.opportunities.filter((o) => o.industry === name).length +
@@ -340,7 +340,7 @@ function categoryUsage(kind: CategoryKind, name: string) {
 /* --------------------------------- Overview -------------------------------- */
 
 export async function getAdminOverview() {
-  const d = db();
+  const d = await data();
   const users = d.users.filter((u) => u.role !== "admin");
 
   const applicationsByStatus = APPLICATION_STATUSES.map((s) => ({ key: s, value: d.applications.filter((a) => a.status === s).length }));
@@ -352,7 +352,7 @@ export async function getAdminOverview() {
   const pendingVerifications = users
     .filter((u) => u.verification === "pending")
     .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
-    .map((u) => ({ ...identity(u), createdAt: u.createdAt }));
+    .map((u) => ({ ...identity(d, u), createdAt: u.createdAt }));
 
   const openReports = d.reports
     .filter((r) => r.status === "open")
@@ -360,7 +360,7 @@ export async function getAdminOverview() {
     .map((r) => {
       const targetName =
         r.targetType === "user"
-          ? identity(d.users.find((u) => u.id === r.targetId)).name
+          ? identity(d, d.users.find((u) => u.id === r.targetId)).name
           : (d.opportunities.find((o) => o.id === r.targetId)?.title ?? "Removed opportunity");
       return { id: r.id, reason: r.reason, targetType: r.targetType, targetName, createdAt: r.createdAt };
     });
@@ -372,7 +372,7 @@ export async function getAdminOverview() {
       const p = d.plans.find((x) => x.id === s.planId);
       return {
         id: s.id,
-        userName: identity(d.users.find((u) => u.id === s.userId)).name,
+        userName: identity(d, d.users.find((u) => u.id === s.userId)).name,
         planName: p?.name ?? s.planId,
         amount: p ? (s.billingCycle === "yearly" ? p.priceYearly : p.priceMonthly) : 0,
         billingCycle: s.billingCycle,
@@ -383,7 +383,7 @@ export async function getAdminOverview() {
   const recentSignups = [...users]
     .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
     .slice(0, 8)
-    .map((u) => ({ ...identity(u), role: u.role as Segment, status: u.status, verification: u.verification, createdAt: u.createdAt }));
+    .map((u) => ({ ...identity(d, u), role: u.role as Segment, status: u.status, verification: u.verification, createdAt: u.createdAt }));
 
   return { applicationsByStatus, opportunitiesByCategory, pendingVerifications, openReports, pendingPayments, recentSignups };
 }

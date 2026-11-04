@@ -14,7 +14,9 @@
 | Decision | Reason |
 | --- | --- |
 | `cacheComponents` turned **off** (template default was on) | Almost every route reads the session cookie and renders per-user data. The classic dynamic model avoids wrapping every session read in `<Suspense>` and `use cache: private`. It can be revisited for the marketing pages. |
-| Mock data provider by default | The MVP runs with zero credentials. All reads go through async functions in `src/lib/data/queries.ts` (plus `*-queries.ts` and `insights.ts`) and all writes through server actions, so a Supabase adapter can replace the store without touching pages. |
+| One Postgres code path | Production uses Supabase Postgres through `DATABASE_URL` (postgres.js, transaction pooler). Without it, the same SQL runs on embedded PGlite built from `supabase/migrations`, so the zero-config demo and the tests exercise the real schema. |
+| Server-only database access | All queries run on the server with app-level authorization. Migration 0002 revokes the public API roles (`anon`, `authenticated`); the RLS policies stay as defense in depth for when client-side Supabase access is added. |
+| App-managed credentials (for now) | Passwords are scrypt hashes in `user_credentials` with a signed session cookie. Supabase Auth is the planned next step for confirmation and reset emails. |
 | Plans drive permissions | `src/lib/permissions.ts` resolves the user's effective plan (an active paid subscription, otherwise the segment's free plan) and checks `entitlements` and `limits` from plan data. Admins edit those in `/admin/plans`. Role capabilities (who may publish or apply) are separate from plan features. |
 | Optimistic proxy + server checks | `src/proxy.ts` only checks for the session cookie and redirects. Real authorization (signature, role, suspended status) is enforced in layouts (`requireUser`, `requireRole`) and again inside every server action. |
 | No simulated payments | `startCheckout` creates a `pending_payment` subscription through `getPaymentProvider()`. Only an admin's manual activation or (in future) a verified gateway webhook can make it `active`. |
@@ -28,21 +30,24 @@ Browser ──► proxy.ts (cookie present?) ──► layout (requireUser / req
                                              │
                                              ▼
                                     Server Component page
-                                    └─ lib/data/queries.ts ──► store (mock) | Supabase (future)
-Client component ──► Server Action (lib/actions/*) ──► validate (Zod) ──► authorize ──► mutate ──► revalidatePath
+                                    └─ lib/data/queries.ts ──► lib/db data() ──► Postgres (Supabase | PGlite)
+Client component ──► Server Action (lib/actions/*) ──► validate (Zod) ──► authorize ──► lib/db write() (transaction) ──► revalidatePath
 ```
 
-## Switching to Supabase
+## Database access (`src/lib/db`)
 
-1. Create a Supabase project and run `supabase/migrations/0001_init.sql`, then `supabase/seed.sql`.
-2. Set `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` and `DATA_PROVIDER=supabase`.
-3. Auth: replace `createSession` / `getCurrentUser` in `src/lib/auth/session.ts` with `createSupabaseServerClient().auth` (`signUp`, `signInWithPassword`, `getUser`, `signOut`, `resetPasswordForEmail`), and insert the `public.users` row plus the role profile on sign-up. Update `src/proxy.ts` to refresh the Supabase session cookie (see the `@supabase/ssr` Next.js guide).
-4. Data: implement each function in `src/lib/data/queries.ts` (and `admin-queries.ts`, `dashboard-queries.ts`, `marketplace-queries.ts`, `insights.ts`) against Supabase, keeping the same return types. Column names are the snake_case equivalents of the TypeScript fields.
-5. Actions: replace the `db()` mutations in `src/lib/actions/*` with Supabase calls. Keep the existing permission checks; RLS is a second line of defense, not a replacement.
-6. Subscriptions: write `user_subscriptions` and `subscription_events` only with the service-role client (webhook / admin).
+- `client.ts` opens the connection: postgres.js for `DATABASE_URL` (with `prepare: false` for Supabase's pooler and SSL), otherwise PGlite. PGlite is persisted to `.data/pglite` locally and kept in memory on Vercel. On first use it runs every file in `supabase/migrations`, then `supabase/seed.sql` and the demo data.
+- `tables.ts` maps each domain collection to its table: camelCase ↔ snake_case, `text[]`, `jsonb` (plan limits), numeric columns, social accounts in `creator_socials`, and partnership metrics flattened into columns.
+- `index.ts` exposes `data()`, a snapshot of all collections loaded once per request (React `cache`) after `connection()`, so nothing runs at build time; and `write(fn)`, a transaction with `insert` / `update` / `remove` helpers that invalidates the snapshot.
+- `demo-data.ts` turns `src/lib/data/seed.ts` into rows, mapping readable seed keys (`u_biz1`, `op_1`…) to stable UUIDs.
+- Scale note: `data()` reads whole tables and the query helpers filter in code, which is simple and fine for an MVP. As data grows, move the heavy queries (marketplace search, admin lists) to targeted SQL with indexes and pagination.
 
-## Mock store details
+### Schema changes
 
-- `src/lib/data/store.ts` keeps a singleton on `globalThis` (it survives hot reload) and writes it through to `.data/marketin-db.json` after mutations (debounced). Set `MOCK_DB_PERSIST=false` where the filesystem is read-only.
-- Bump `SCHEMA_VERSION` in `store.ts` when the seed shape changes, so stale JSON files are ignored.
-- The mock store is single-process and not safe for multi-instance production use.
+Add a new timestamped file to `supabase/migrations/` (never edit one that may already be applied), then run `npm run test:db`. It builds the schema and demo data on PGlite and on postgres.js, then checks the mappings round-trip. Pushing to `main` applies the migration to Supabase through the GitHub integration.
+
+### Moving to Supabase Auth
+
+1. Sign users up and in with Supabase Auth (`@supabase/ssr`: `signUp`, `signInWithPassword`, `resetPasswordForEmail`), using the auth user id as `public.users.id`.
+2. Replace the cookie session in `src/lib/auth/session.ts` with `supabase.auth.getUser()` and refresh the session in `src/proxy.ts`.
+3. New migration: restore `users.id references auth.users (id)` and drop `user_credentials` after existing users have reset their passwords.

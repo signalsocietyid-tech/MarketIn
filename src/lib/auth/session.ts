@@ -4,7 +4,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { createHmac, timingSafeEqual } from "node:crypto";
 import type { Role, User } from "@/lib/types";
-import { db } from "@/lib/data/store";
+import { getUser } from "@/lib/data/queries";
 
 export const SESSION_COOKIE = "marketin_session";
 const MAX_AGE = 60 * 60 * 24 * 14; // 14 days
@@ -69,7 +69,7 @@ export async function destroySession() {
 export const getCurrentUser = cache(async (): Promise<User | null> => {
   const payload = decode((await cookies()).get(SESSION_COOKIE)?.value);
   if (!payload) return null;
-  const user = db().users.find((u) => u.id === payload.uid);
+  const user = await getUser(payload.uid);
   if (!user || user.status === "suspended") return null;
   return user;
 });

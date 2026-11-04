@@ -4,7 +4,7 @@
 
 MarketIn is a business growth & partnership marketplace that connects **businesses** with **independent sales partners & distributors**, **creators & affiliates (KOLs, UGC creators)** and **agencies**. This repository contains the MVP: a public website, a working marketplace, role-based dashboards, a plan-driven subscription system and an admin console.
 
-> Status: functional MVP running on a local mock data store. Supabase schema and payment-gateway adapters are prepared but not connected. See [What still uses mock data](#what-still-uses-mock-data).
+> Status: functional MVP on Postgres: your Supabase database in production, an embedded Postgres (PGlite) with demo data locally. Payment-gateway adapters are prepared but not connected. See [What is not live yet](#what-is-not-live-yet).
 
 ---
 
@@ -17,7 +17,7 @@ npm install
 npm run dev
 ```
 
-Open http://localhost:3000. No environment variables are needed for the demo.
+Open http://localhost:3000. No environment variables are needed for the demo: without `DATABASE_URL` the app runs on an embedded Postgres (PGlite) built from `supabase/migrations` plus demo data, saved to `.data/pglite`. The very first request takes 15–30 seconds while that database is created; later starts are fast.
 
 For a production build (requires `SESSION_SECRET` in `.env.local`, see below):
 
@@ -26,13 +26,27 @@ npm run build
 npm run start
 ```
 
-### Deployment
+### Deployment (Vercel + Supabase)
 
-`main` deploys automatically to Vercel (project `signalsocietyid-tech/market-in`). Required Vercel environment variable: `SESSION_SECRET`. With the mock data provider each serverless instance keeps its own in-memory copy of the demo data, so registrations and edits are not durable there; that's fine for demos and is solved by the Supabase adapter.
+`main` deploys automatically to Vercel (project `signalsocietyid-tech/market-in`). Supabase (project `wvaogsqxridvpmquarlv`) is linked to the GitHub repo and applies new files in `supabase/migrations` on push to `main`.
+
+Set these in Vercel → Settings → Environment Variables (Production and Preview):
+
+| Variable | Where to find it |
+| --- | --- |
+| `SESSION_SECRET` | Any random string of 32+ characters (`node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`). |
+| `DATABASE_URL` | Supabase → **Connect** → *Transaction pooler* connection string (port `6543`), with your database password filled in. |
+
+First-time database setup in Supabase:
+
+1. Check that both migrations are applied (Supabase → Integrations → GitHub, or run them in the SQL Editor in order).
+2. Run `supabase/seed.sql` once in the SQL Editor (plans and categories; seed files are never applied automatically).
+3. Optional, for demos only: `DATABASE_URL="…" npm run db:demo` loads the fictional marketplace (without an admin account).
+4. Admin access: register normally, then run in the SQL Editor: `update public.users set role = 'admin' where email = 'you@example.com';`
 
 ### Demo accounts
 
-The login page has one-click **Explore the demo** buttons (Business, Sales Partner, Creator, Agency, Admin). They only appear while `DATA_PROVIDER=mock`.
+The login page has one-click **Explore the demo** buttons. On the embedded database all five appear (Business, Sales Partner, Creator, Agency, Admin). On a real database they are hidden unless `ENABLE_DEMO_LOGIN=true`, and the admin demo is never offered there.
 
 | Role | Email | Plan |
 | --- | --- | --- |
@@ -44,7 +58,7 @@ The login page has one-click **Explore the demo** buttons (Business, Sales Partn
 
 All seeded accounts share the password in `DEMO_PASSWORD` in [src/lib/data/seed.ts](src/lib/data/seed.ts). All companies, people and figures in the seed are fictional.
 
-**Resetting data:** mock data is saved to `.data/marketin-db.json` so registrations survive restarts. Delete that file (or use **Admin → Overview → Reset demo data**) to restore the seed.
+**Resetting data:** the embedded database lives in `.data/pglite`. Delete that folder, or use **Admin → Overview → Reset demo data** (embedded database only), to restore the demo data. Demo accounts keep the same IDs across resets.
 
 ---
 
@@ -57,7 +71,7 @@ All seeded accounts share the password in `DEMO_PASSWORD` in [src/lib/data/seed.
 
 **Accounts & onboarding**
 - `/register`: choose one of four account types, then a multi-step onboarding form specific to that type (React Hook Form + Zod, per-step validation). Business logo upload included. Supports `?type=` preselection and `?plan=` → continues to checkout.
-- `/login`, `/forgot-password` (no email sending in mock mode), password change in `/settings`.
+- `/login`, `/forgot-password` (no email is sent yet), password change in `/settings`. Password hashes (scrypt) are stored in `user_credentials`.
 - Signed session cookie (HMAC, httpOnly) with a proxy guard plus server-side role checks.
 
 **Marketplace**
@@ -116,15 +130,17 @@ src/
     validation.ts      Zod schemas shared by client forms and server actions
     permissions.ts     Role capabilities + plan entitlements/limits/usage
     auth/              Session cookie, password hashing
-    data/              Mock store, seed data, read queries, dashboard insights
+    db/                Postgres client (Supabase or embedded PGlite), table mappings, demo-data loader
+    data/              Read queries, dashboard insights, seed content
     actions/           Server actions: auth, marketplace, account/billing, admin
     payments/          Payment provider interface (mock, Midtrans/Xendit stubs)
-    supabase/          Supabase browser/server clients (for DATA_PROVIDER=supabase)
+    supabase/          Supabase JS clients (reserved for Supabase Auth/Storage; not used yet)
 supabase/
   migrations/0001_init.sql   Full Postgres schema with row-level security
+  migrations/0002_*.sql      App-managed credentials; closes the public API (server-only access)
   seed.sql                   Plans and taxonomies
 docs/
-  ARCHITECTURE.md      Decisions, data flow, how to switch to Supabase
+  ARCHITECTURE.md      Decisions, data flow, database access
   PAYMENTS.md          Payment integration plan
 ```
 
@@ -165,12 +181,11 @@ Copy `.env.example` to `.env.local`. Nothing is required for the local demo.
 
 | Variable | Required | Description |
 | --- | --- | --- |
-| `DATA_PROVIDER` | no | `mock` (default) or `supabase` (adapter not yet implemented, see next steps). |
-| `MOCK_DB_PERSIST` | no | `false` disables writing `.data/marketin-db.json`. Persistence is turned off automatically on Vercel. |
+| `DATABASE_URL` | **yes in production** | Postgres connection string. Use Supabase's transaction pooler URL on Vercel. Without it the app uses the embedded demo database. |
+| `ENABLE_DEMO_LOGIN` | no | `true` shows the non-admin demo logins on a real database (only after `npm run db:demo`). |
+| `MOCK_DB_PERSIST` | no | `false` keeps the embedded database in memory instead of `.data/pglite`. Always in memory on Vercel. |
 | `SESSION_SECRET` | **yes in production** | 32+ random characters used to sign the session cookie. In production (`npm run start`, Vercel) sign-in is disabled until it is set; there is no fallback. |
-| `NEXT_PUBLIC_SUPABASE_URL` | with Supabase | Project URL. |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | with Supabase | Public anon key. |
-| `SUPABASE_SERVICE_ROLE_KEY` | with Supabase | Server-only; used for webhooks and admin jobs. Never expose to the browser. |
+| `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` | not yet | Reserved for Supabase Auth and Storage; the app doesn't read them today. |
 | `PAYMENT_PROVIDER` | no | `mock` (default), `midtrans` or `xendit`. |
 | `MIDTRANS_SERVER_KEY`, `MIDTRANS_CLIENT_KEY`, `MIDTRANS_IS_PRODUCTION` | with Midtrans | Midtrans Snap credentials. |
 | `XENDIT_SECRET_KEY`, `XENDIT_CALLBACK_TOKEN` | with Xendit | Xendit invoice credentials and webhook token. |
@@ -179,9 +194,10 @@ No credentials are committed or invented anywhere in the code.
 
 ---
 
-## What still uses mock data
+## What is not live yet
 
-- **Data store and auth:** an in-memory store with JSON write-through (`src/lib/data/store.ts`) and custom cookie sessions. The Supabase schema is ready, but the Supabase data adapter isn't written yet.
+- **Accounts:** sign-up and login are handled by the app (scrypt hashes in Postgres plus a signed session cookie), not yet by Supabase Auth, so there are no confirmation or reset emails.
+- **Query style:** each request loads the tables it needs and filters in code. That's fine at MVP scale; move hot paths to SQL `where` clauses as data grows.
 - **Payments:** checkout creates `pending_payment` subscriptions only. Activation is manual by an admin; the webhook endpoint returns 501.
 - **Email:** password-reset emails and team invitations are recorded but not sent.
 - **Partnership metrics** (leads, conversions, revenue, reach) are values stored on each partnership in the seed; there is no tracking integration.
@@ -196,13 +212,13 @@ No credentials are committed or invented anywhere in the code.
 
 ## Recommended next steps
 
-1. **Supabase adapter:** implement `src/lib/data/queries.ts` and `src/lib/actions/*` against Supabase (the functions are already async), switch auth to Supabase Auth (`signUp` / `signInWithPassword` / `resetPasswordForEmail`), and run the migration + `seed.sql`. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+1. **Supabase Auth:** move credentials to Supabase Auth (`signUp` / `signInWithPassword` / `resetPasswordForEmail`) for email confirmation and password reset, restore the `users.id → auth.users` foreign key and drop `user_credentials`. Then push frequent queries down into SQL. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 2. **Payments:** implement the Midtrans Snap or Xendit Invoice adapter and the signed webhook ([docs/PAYMENTS.md](docs/PAYMENTS.md)), then retire manual activation for paid flows.
 3. **Messaging:** a business ↔ partner conversation thread per application (the "communicate & negotiate" step).
 4. **Transactional email:** application updates, invitations and password reset (e.g. Resend or Postmark via Supabase SMTP).
 5. **Social verification:** OAuth connections for Instagram, TikTok and YouTube to verify follower counts and engagement.
 6. **File storage:** logos, portfolios and verification documents in Supabase Storage instead of data URLs.
 7. **Tracking:** affiliate link and voucher tracking so partnership metrics are measured, not reported.
-8. **Testing & ops:** Playwright end-to-end tests for the role journeys, error monitoring, rate limiting on auth and server actions.
+8. **Testing & ops:** `npm run test:db` checks the schema and data mapping on both database drivers; add Playwright end-to-end tests for the role journeys, error monitoring, rate limiting on auth and server actions.
 9. **Localization:** Bahasa Indonesia UI (the copy lives in `src/content/` and components).
 10. **Legal review** of the Terms, Privacy (UU PDP No. 27/2022) and Cookie policy before launch.

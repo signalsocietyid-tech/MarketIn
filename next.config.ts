@@ -4,6 +4,10 @@ import type { NextConfig } from "next";
 // and render per-user data, so the classic dynamic rendering model is simpler here.
 // See docs/ARCHITECTURE.md for the reasoning.
 const nextConfig: NextConfig = {
+  // Database drivers run as plain Node packages (PGlite ships WASM + data files).
+  serverExternalPackages: ["@electric-sql/pglite", "postgres"],
+  // The embedded demo database builds itself from these SQL files at runtime.
+  outputFileTracingIncludes: { "/**": ["./supabase/migrations/**", "./supabase/seed.sql"] },
   turbopack: {
     rules: {
       "*.css": {

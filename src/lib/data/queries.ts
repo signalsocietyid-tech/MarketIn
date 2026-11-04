@@ -3,6 +3,7 @@ import type {
   AgencyProfile,
   Application,
   BusinessProfile,
+  Database,
   CreatorProfile,
   Opportunity,
   Role,
@@ -14,45 +15,53 @@ import type {
   UserSubscription,
 } from "@/lib/types";
 import { AUDIENCE_SIZES, BUDGET_RANGES, OPPORTUNITY_TYPE_LABEL, SEGMENT_LABEL } from "@/lib/constants";
-import { db } from "./store";
+import { data } from "@/lib/db";
 
-// Read-side data access. Every function is async so the mock store can be
-// swapped for the Supabase adapter (see src/lib/supabase) without touching pages.
+// Read-side data access. Each async function reads the per-request snapshot
+// from Postgres (src/lib/db); helpers that take `d` work on that snapshot.
 
 /* --------------------------------- Users ---------------------------------- */
 
 export async function getUser(id: string) {
-  return db().users.find((u) => u.id === id) ?? null;
+  const d = await data();
+  return d.users.find((u) => u.id === id) ?? null;
 }
 
 export async function getUserByEmail(email: string) {
+  const d = await data();
   const e = email.trim().toLowerCase();
-  return db().users.find((u) => u.email.toLowerCase() === e) ?? null;
+  return d.users.find((u) => u.email.toLowerCase() === e) ?? null;
 }
 
 export async function getBusiness(userId: string) {
-  return db().businesses.find((b) => b.userId === userId) ?? null;
+  const d = await data();
+  return d.businesses.find((b) => b.userId === userId) ?? null;
 }
 export async function getSalesPartner(userId: string) {
-  return db().salesPartners.find((b) => b.userId === userId) ?? null;
+  const d = await data();
+  return d.salesPartners.find((b) => b.userId === userId) ?? null;
 }
 export async function getCreator(userId: string) {
-  return db().creators.find((b) => b.userId === userId) ?? null;
+  const d = await data();
+  return d.creators.find((b) => b.userId === userId) ?? null;
 }
 export async function getAgency(userId: string) {
-  return db().agencies.find((b) => b.userId === userId) ?? null;
+  const d = await data();
+  return d.agencies.find((b) => b.userId === userId) ?? null;
 }
 
 /* ------------------------------ Subscriptions ------------------------------ */
 
 export async function getPlans(segment?: Segment, includeInactive = false) {
-  return db()
+  const d = await data();
+  return d
     .plans.filter((p) => (!segment || p.segment === segment) && (includeInactive || p.active))
     .sort((a, b) => a.sortOrder - b.sortOrder);
 }
 
 export async function getPlan(id: string) {
-  return db().plans.find((p) => p.id === id) ?? null;
+  const d = await data();
+  return d.plans.find((p) => p.id === id) ?? null;
 }
 
 function isLive(s: UserSubscription) {
@@ -60,53 +69,58 @@ function isLive(s: UserSubscription) {
 }
 
 export async function getActiveSubscription(userId: string) {
-  return db().subscriptions.find((s) => s.userId === userId && isLive(s)) ?? null;
+  const d = await data();
+  return d.subscriptions.find((s) => s.userId === userId && isLive(s)) ?? null;
 }
 
 export async function getPendingSubscription(userId: string) {
-  return db().subscriptions.find((s) => s.userId === userId && s.status === "pending_payment") ?? null;
+  const d = await data();
+  return d.subscriptions.find((s) => s.userId === userId && s.status === "pending_payment") ?? null;
 }
 
 export async function getSubscriptionHistory(userId: string) {
-  return db()
+  const d = await data();
+  return d
     .subscriptionEvents.filter((e) => e.userId === userId)
     .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 }
 
 /** The plan whose entitlements currently apply: an active paid plan, else the segment's free plan. */
 export async function getEffectivePlan(user: Pick<User, "id" | "role">): Promise<SubscriptionPlan | null> {
+  const d = await data();
   if (user.role === "admin") return null;
   const sub = await getActiveSubscription(user.id);
-  const plan = sub ? db().plans.find((p) => p.id === sub.planId) : undefined;
+  const plan = sub ? d.plans.find((p) => p.id === sub.planId) : undefined;
   if (plan) return plan;
-  return db().plans.find((p) => p.segment === user.role && p.tier === "free") ?? null;
+  return d.plans.find((p) => p.segment === user.role && p.tier === "free") ?? null;
 }
 
-function isProUser(userId: string) {
-  const sub = db().subscriptions.find((s) => s.userId === userId && isLive(s));
+function isProUser(d: Database, userId: string) {
+  const sub = d.subscriptions.find((s) => s.userId === userId && isLive(s));
   if (!sub) return false;
-  return db().plans.find((p) => p.id === sub.planId)?.tier === "pro";
+  return d.plans.find((p) => p.id === sub.planId)?.tier === "pro";
 }
 
-function hasPriority(userId: string) {
-  const sub = db().subscriptions.find((s) => s.userId === userId && isLive(s));
-  const plan = sub && db().plans.find((p) => p.id === sub.planId);
+function hasPriority(d: Database, userId: string) {
+  const sub = d.subscriptions.find((s) => s.userId === userId && isLive(s));
+  const plan = sub && d.plans.find((p) => p.id === sub.planId);
   return !!plan?.entitlements.some((e) => e === "priority_visibility" || e === "priority_access");
 }
 
 /* --------------------------------- Ratings --------------------------------- */
 
-export function ratingFor(userId: string) {
-  const rs = db().reviews.filter((r) => r.revieweeId === userId);
+export function ratingFor(d: Database, userId: string) {
+  const rs = d.reviews.filter((r) => r.revieweeId === userId);
   if (!rs.length) return { average: 0, count: 0 };
   return { average: rs.reduce((s, r) => s + r.rating, 0) / rs.length, count: rs.length };
 }
 
 export async function getReviewsFor(userId: string) {
-  return db()
+  const d = await data();
+  return d
     .reviews.filter((r) => r.revieweeId === userId)
     .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
-    .map((r) => ({ ...r, reviewer: db().users.find((u) => u.id === r.reviewerId) }));
+    .map((r) => ({ ...r, reviewer: d.users.find((u) => u.id === r.reviewerId) }));
 }
 
 /* ------------------------------ Profile views ------------------------------ */
@@ -138,16 +152,15 @@ function compact(n: number) {
   return new Intl.NumberFormat("en", { notation: "compact", maximumFractionDigits: 1 }).format(n);
 }
 
-export function buildProfileView(user: User): ProfileView | null {
+export function buildProfileView(d: Database, user: User): ProfileView | null {
   if (user.role === "admin") return null;
-  const d = db();
   const base = {
     id: user.id,
     role: user.role,
     roleLabel: SEGMENT_LABEL[user.role],
     verified: user.verification === "verified",
-    pro: isProUser(user.id),
-    rating: ratingFor(user.id),
+    pro: isProUser(d, user.id),
+    rating: ratingFor(d, user.id),
     joinedAt: user.createdAt,
     status: user.status,
   };
@@ -232,8 +245,9 @@ export function buildProfileView(user: User): ProfileView | null {
 }
 
 export async function getProfileView(userId: string) {
+  const d = await data();
   const u = await getUser(userId);
-  return u ? buildProfileView(u) : null;
+  return u ? buildProfileView(d, u) : null;
 }
 
 /* ------------------------------ Partner search ----------------------------- */
@@ -257,7 +271,7 @@ export type PartnerFilters = {
 };
 
 export async function searchPartners(kind: Exclude<Segment, "business"> | "business", f: PartnerFilters) {
-  const d = db();
+  const d = await data();
   const q = f.q?.toLowerCase().trim();
   const users = d.users.filter((u) => u.role === kind && u.status !== "suspended");
 
@@ -305,7 +319,7 @@ export async function searchPartners(kind: Exclude<Segment, "business"> | "busin
       }
       return true;
     })
-    .map((u) => ({ view: buildProfileView(u), priority: hasPriority(u.id) }))
+    .map((u) => ({ view: buildProfileView(d, u), priority: hasPriority(d, u.id) }))
     .filter((x): x is { view: ProfileView; priority: boolean } => !!x.view);
 
   views.sort((a, b) => {
@@ -345,8 +359,7 @@ export type OpportunityView = Opportunity & {
   applicants: number;
 };
 
-export function toOpportunityView(o: Opportunity): OpportunityView {
-  const d = db();
+export function toOpportunityView(d: Database, o: Opportunity): OpportunityView {
   const biz = d.users.find((u) => u.id === o.businessId);
   return {
     ...o,
@@ -358,7 +371,7 @@ export function toOpportunityView(o: Opportunity): OpportunityView {
 }
 
 export async function searchOpportunities(f: OpportunityFilters, opts: { includePremium?: boolean } = {}) {
-  const d = db();
+  const d = await data();
   const q = f.q?.toLowerCase().trim();
   const list = d.opportunities.filter((o) => {
     if (o.status !== "open" || o.flagged) return false;
@@ -388,30 +401,33 @@ export async function searchOpportunities(f: OpportunityFilters, opts: { include
     // Recommended: featured, then businesses with priority visibility, then newest.
     return (
       Number(b.featured) - Number(a.featured) ||
-      Number(hasPriority(b.businessId)) - Number(hasPriority(a.businessId)) ||
+      Number(hasPriority(d, b.businessId)) - Number(hasPriority(d, a.businessId)) ||
       b.createdAt.localeCompare(a.createdAt)
     );
   });
 
-  return list.map(toOpportunityView).map((o) => ({ ...o, locked: o.premium && !opts.includePremium }));
+  return list.map((o) => toOpportunityView(d, o)).map((o) => ({ ...o, locked: o.premium && !opts.includePremium }));
 }
 
 export async function getOpportunity(id: string) {
-  const o = db().opportunities.find((x) => x.id === id);
-  return o ? toOpportunityView(o) : null;
+  const d = await data();
+  const o = d.opportunities.find((x) => x.id === id);
+  return o ? toOpportunityView(d, o) : null;
 }
 
 export async function getOpportunitiesByBusiness(businessId: string) {
-  return db()
+  const d = await data();
+  return d
     .opportunities.filter((o) => o.businessId === businessId)
     .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
-    .map(toOpportunityView);
+    .map((o) => toOpportunityView(d, o));
 }
 
 export async function countOpportunitiesByCategory() {
+  const d = await data();
   const counts: Record<string, number> = {};
-  const suspended = new Set(db().users.filter((u) => u.status === "suspended").map((u) => u.id));
-  for (const o of db().opportunities)
+  const suspended = new Set(d.users.filter((u) => u.status === "suspended").map((u) => u.id));
+  for (const o of d.opportunities)
     if (o.status === "open" && !o.flagged && !suspended.has(o.businessId)) counts[o.category] = (counts[o.category] ?? 0) + 1;
   return counts;
 }
@@ -424,53 +440,57 @@ export type ApplicationView = Application & {
   talentName?: string;
 };
 
-function toApplicationView(a: Application): ApplicationView | null {
-  const d = db();
+function toApplicationView(d: Database, a: Application): ApplicationView | null {
   const opportunity = d.opportunities.find((o) => o.id === a.opportunityId);
   const user = d.users.find((u) => u.id === a.applicantId);
   if (!opportunity || !user) return null;
   return {
     ...a,
     opportunity,
-    applicant: buildProfileView(user),
+    applicant: buildProfileView(d, user),
     talentName: a.talentId ? d.talents.find((t) => t.id === a.talentId)?.name : undefined,
   };
 }
 
-const viewsOf = (list: Application[]) =>
+const viewsOf = (d: Database, list: Application[]) =>
   list
     .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
-    .map(toApplicationView)
+    .map((a) => toApplicationView(d, a))
     .filter((x): x is ApplicationView => !!x);
 
 export async function getApplicationsByApplicant(userId: string) {
-  return viewsOf(db().applications.filter((a) => a.applicantId === userId));
+  const d = await data();
+  return viewsOf(d, d.applications.filter((a) => a.applicantId === userId));
 }
 
 export async function getApplicationsForOpportunity(opportunityId: string) {
-  return viewsOf(db().applications.filter((a) => a.opportunityId === opportunityId));
+  const d = await data();
+  return viewsOf(d, d.applications.filter((a) => a.opportunityId === opportunityId));
 }
 
 export async function getApplicationsForBusiness(businessId: string) {
-  const ids = new Set(db().opportunities.filter((o) => o.businessId === businessId).map((o) => o.id));
-  return viewsOf(db().applications.filter((a) => ids.has(a.opportunityId)));
+  const d = await data();
+  const ids = new Set(d.opportunities.filter((o) => o.businessId === businessId).map((o) => o.id));
+  return viewsOf(d, d.applications.filter((a) => ids.has(a.opportunityId)));
 }
 
 export async function getExistingApplication(opportunityId: string, userId: string) {
-  return db().applications.find((a) => a.opportunityId === opportunityId && a.applicantId === userId) ?? null;
+  const d = await data();
+  return d.applications.find((a) => a.opportunityId === opportunityId && a.applicantId === userId) ?? null;
 }
 
 export async function countApplicationsThisMonth(userId: string) {
+  const d = await data();
   const start = new Date();
   start.setDate(1);
   start.setHours(0, 0, 0, 0);
-  return db().applications.filter((a) => a.applicantId === userId && new Date(a.createdAt) >= start).length;
+  return d.applications.filter((a) => a.applicantId === userId && new Date(a.createdAt) >= start).length;
 }
 
 /* ------------------------------- Partnerships ------------------------------ */
 
 export async function getPartnershipsForUser(userId: string) {
-  const d = db();
+  const d = await data();
   return d.partnerships
     .filter((p) => p.businessId === userId || p.partnerId === userId)
     .sort((a, b) => b.startDate.localeCompare(a.startDate))
@@ -480,7 +500,7 @@ export async function getPartnershipsForUser(userId: string) {
       return {
         ...p,
         opportunity: d.opportunities.find((o) => o.id === p.opportunityId)!,
-        counterpart: counterpart ? buildProfileView(counterpart) : null,
+        counterpart: counterpart ? buildProfileView(d, counterpart) : null,
         reviewed: d.reviews.some((r) => r.partnershipId === p.id && r.reviewerId === userId),
       };
     });
@@ -489,16 +509,19 @@ export async function getPartnershipsForUser(userId: string) {
 /* -------------------------- Saved, notifications --------------------------- */
 
 export async function getSaved(userId: string) {
-  return db().saved.filter((s) => s.userId === userId);
+  const d = await data();
+  return d.saved.filter((s) => s.userId === userId);
 }
 
 export async function isSaved(userId: string | undefined, targetType: "opportunity" | "profile", targetId: string) {
+  const d = await data();
   if (!userId) return false;
-  return db().saved.some((s) => s.userId === userId && s.targetType === targetType && s.targetId === targetId);
+  return d.saved.some((s) => s.userId === userId && s.targetType === targetType && s.targetId === targetId);
 }
 
 export async function getNotifications(userId: string) {
-  return db()
+  const d = await data();
+  return d
     .notifications.filter((n) => n.userId === userId)
     .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 }
@@ -506,19 +529,22 @@ export async function getNotifications(userId: string) {
 /* ------------------------------ Agency helpers ----------------------------- */
 
 export async function getTalents(agencyId: string) {
-  return db()
+  const d = await data();
+  return d
     .talents.filter((t) => t.agencyId === agencyId)
     .sort((a, b) => b.addedAt.localeCompare(a.addedAt));
 }
 
 export async function getTeamMembers(agencyId: string) {
-  return db().teamMembers.filter((t) => t.agencyId === agencyId);
+  const d = await data();
+  return d.teamMembers.filter((t) => t.agencyId === agencyId);
 }
 
 /* -------------------------------- Taxonomy --------------------------------- */
 
 export async function getCategoryNames(kind: "industry" | "niche" | "location") {
-  return db()
+  const d = await data();
+  return d
     .categories.filter((c) => c.kind === kind && c.active)
     .map((c) => c.name);
 }
@@ -526,7 +552,7 @@ export async function getCategoryNames(kind: "industry" | "niche" | "location") 
 /* ---------------------------------- Admin ---------------------------------- */
 
 export async function getMarketplaceStats() {
-  const d = db();
+  const d = await data();
   const byRole = (r: Role) => d.users.filter((u) => u.role === r).length;
   const mrr = d.subscriptions
     .filter(isLive)

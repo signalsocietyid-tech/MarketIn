@@ -1,6 +1,6 @@
 import "server-only";
 import { cache } from "react";
-import { db } from "./store";
+import { data } from "@/lib/db";
 import { getCategoryNames, getSaved } from "./queries";
 import { getCurrentUser } from "@/lib/auth/session";
 import { hasFeature } from "@/lib/permissions";
@@ -40,12 +40,14 @@ export async function getTaxonomies() {
 
 /** All of a user's applications to one opportunity (agencies may apply once per talent). */
 export async function getApplicationsForOpportunityByApplicant(opportunityId: string, userId: string) {
-  return db()
+  const d = await data();
+  return d
     .applications.filter((a) => a.opportunityId === opportunityId && a.applicantId === userId)
     .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 }
 
 /** Whether the opportunity's owner account is suspended (listing should be hidden publicly). */
 export async function isOwnerSuspended(businessId: string) {
-  return db().users.find((u) => u.id === businessId)?.status === "suspended";
+  const d = await data();
+  return d.users.find((u) => u.id === businessId)?.status === "suspended";
 }

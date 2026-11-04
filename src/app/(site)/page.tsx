@@ -9,18 +9,18 @@ import { FaqTabs } from "@/components/home/faq-tabs";
 import { FinalCta } from "@/components/home/final-cta";
 import { PricingTable } from "@/components/pricing/pricing-table";
 import { SectionHeading } from "@/components/ui/primitives";
-import { getPlans, getProfileView } from "@/lib/data/queries";
+import { getPlans, getProfileView, getUserByEmail } from "@/lib/data/queries";
 import { getPricingViewer } from "@/lib/data/viewer";
 import type { ProfileView } from "@/lib/data/queries";
 
-// Sample profiles shown in the trust section (fictional seed accounts).
-const SAMPLE_PROFILE_IDS = ["u_sales1", "u_cr1", "u_ag1", "u_biz1"];
+// Sample profiles shown in the trust section (fictional demo accounts, when present).
+const SAMPLE_PROFILE_EMAILS = ["sales@marketin.demo", "creator@marketin.demo", "agency@marketin.demo", "business@marketin.demo"];
 
 export default async function HomePage() {
   const [plans, viewer, samples] = await Promise.all([
     getPlans(),
     getPricingViewer(),
-    Promise.all(SAMPLE_PROFILE_IDS.map(getProfileView)),
+    Promise.all(SAMPLE_PROFILE_EMAILS.map(async (e) => { const u = await getUserByEmail(e); return u ? getProfileView(u.id) : null; })),
   ]);
 
   return (

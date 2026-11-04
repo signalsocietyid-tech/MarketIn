@@ -1,7 +1,7 @@
 import "server-only";
 import type { Application, Opportunity, User } from "@/lib/types";
 import { APPLICATION_STATUSES, APPLICATION_STATUS_LABEL, OPPORTUNITY_TYPE_LABEL } from "@/lib/constants";
-import { db } from "./store";
+import { data } from "@/lib/db";
 import { toOpportunityView } from "./queries";
 
 // Aggregations for dashboards. Everything here is derived from stored records —
@@ -27,7 +27,7 @@ export function statusBreakdown(apps: Application[]) {
 }
 
 export async function getBusinessInsights(businessId: string) {
-  const d = db();
+  const d = await data();
   const opps = d.opportunities.filter((o) => o.businessId === businessId);
   const oppIds = new Set(opps.map((o) => o.id));
   const apps = d.applications.filter((a) => oppIds.has(a.opportunityId));
@@ -71,7 +71,7 @@ export async function getBusinessInsights(businessId: string) {
 }
 
 export async function getPartnerInsights(userId: string) {
-  const d = db();
+  const d = await data();
   const apps = d.applications.filter((a) => a.applicantId === userId);
   const partnerships = d.partnerships.filter((p) => p.partnerId === userId);
   const decided = apps.filter((a) => ["accepted", "rejected", "completed"].includes(a.status));
@@ -116,7 +116,7 @@ export async function getPartnerInsights(userId: string) {
 
 /** Rank open opportunities for a partner account by profile fit. */
 export async function getRecommendations(user: User, limit = 12, includePremium = false) {
-  const d = db();
+  const d = await data();
   const applied = new Set(d.applications.filter((a) => a.applicantId === user.id).map((a) => a.opportunityId));
   const sales = d.salesPartners.find((s) => s.userId === user.id);
   const creator = d.creators.find((c) => c.userId === user.id);
@@ -163,5 +163,5 @@ export async function getRecommendations(user: User, limit = 12, includePremium 
     .filter((x) => x.s > 0)
     .sort((a, b) => b.s - a.s || b.o.createdAt.localeCompare(a.o.createdAt))
     .slice(0, limit)
-    .map((x) => ({ opportunity: { ...toOpportunityView(x.o), locked: x.o.premium && !includePremium }, reasons: x.reasons, typeLabel: OPPORTUNITY_TYPE_LABEL[x.o.type] }));
+    .map((x) => ({ opportunity: { ...toOpportunityView(d, x.o), locked: x.o.premium && !includePremium }, reasons: x.reasons, typeLabel: OPPORTUNITY_TYPE_LABEL[x.o.type] }));
 }

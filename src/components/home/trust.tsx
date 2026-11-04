@@ -17,8 +17,8 @@ export function Trust({ samples }: { samples: ProfileView[] }) {
     <section className="border-y border-line bg-white py-20 sm:py-24">
       <div className="container-page">
         <SectionHeading eyebrow="Trust & community" title="Built for Meaningful Business Partnerships." />
-        <div className="mt-12 grid gap-10 lg:grid-cols-[1fr_1.3fr] lg:gap-14">
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
+        <div className={samples.length ? "mt-12 grid gap-10 lg:grid-cols-[1fr_1.3fr] lg:gap-14" : "mt-12"}>
+          <div className={samples.length ? "grid gap-6 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2" : "grid gap-6 sm:grid-cols-2 lg:grid-cols-3"}>
             {PILLARS.map((p) => {
               const Icon = p.icon;
               return (
@@ -34,6 +34,7 @@ export function Trust({ samples }: { samples: ProfileView[] }) {
               );
             })}
           </div>
+          {samples.length > 0 && (
           <div>
             <div className="grid gap-4 sm:grid-cols-2">
               {samples.map((p) => (
@@ -44,6 +45,7 @@ export function Trust({ samples }: { samples: ProfileView[] }) {
               Illustrative sample profiles from MarketIn&apos;s demo environment. Names and figures are fictional.
             </p>
           </div>
+          )}
         </div>
       </div>
     </section>
