@@ -34,8 +34,8 @@ insert into public.subscription_plans (id, segment, tier, name, tagline, price_m
     '{"activeOpportunities":0,"monthlyApplications":100,"talentRoster":50,"teamMembers":10,"savedItems":500}', true, 2);
 
 insert into public.categories (kind, name)
-select 'industry', unnest(array['Food & Beverage','Beauty & Personal Care','Fashion & Apparel','Consumer Electronics','FMCG','Agriculture','Health & Wellness','Home & Living','Software & SaaS','Financial Services','Logistics','Education','Manufacturing','Automotive','Property'])
+select 'industry'::category_kind, unnest(array['Food & Beverage','Beauty & Personal Care','Fashion & Apparel','Consumer Electronics','FMCG','Agriculture','Health & Wellness','Home & Living','Software & SaaS','Financial Services','Logistics','Education','Manufacturing','Automotive','Property'])
 union all
-select 'niche', unnest(array['Beauty','Fashion','Food & Culinary','Tech & Gadgets','Parenting','Fitness','Travel','Lifestyle','Finance','Gaming','Education','Home & Decor','Automotive','Health'])
+select 'niche'::category_kind, unnest(array['Beauty','Fashion','Food & Culinary','Tech & Gadgets','Parenting','Fitness','Travel','Lifestyle','Finance','Gaming','Education','Home & Decor','Automotive','Health'])
 union all
-select 'location', unnest(array['Jakarta','Surabaya','Bandung','Medan','Semarang','Makassar','Yogyakarta','Denpasar','Palembang','Balikpapan','Malang','Pekanbaru']);
+select 'location'::category_kind, unnest(array['Jakarta','Surabaya','Bandung','Medan','Semarang','Makassar','Yogyakarta','Denpasar','Palembang','Balikpapan','Malang','Pekanbaru']);

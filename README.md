@@ -19,12 +19,16 @@ npm run dev
 
 Open http://localhost:3000. No environment variables are needed for the demo.
 
-For a production build:
+For a production build (requires `SESSION_SECRET` in `.env.local`, see below):
 
 ```bash
 npm run build
 npm run start
 ```
+
+### Deployment
+
+`main` deploys automatically to Vercel (project `signalsocietyid-tech/market-in`). Required Vercel environment variable: `SESSION_SECRET`. With the mock data provider each serverless instance keeps its own in-memory copy of the demo data, so registrations and edits are not durable there; that's fine for demos and is solved by the Supabase adapter.
 
 ### Demo accounts
 
@@ -162,8 +166,8 @@ Copy `.env.example` to `.env.local`. Nothing is required for the local demo.
 | Variable | Required | Description |
 | --- | --- | --- |
 | `DATA_PROVIDER` | no | `mock` (default) or `supabase` (adapter not yet implemented, see next steps). |
-| `MOCK_DB_PERSIST` | no | `false` disables writing `.data/marketin-db.json` (use on serverless hosts). |
-| `SESSION_SECRET` | **yes in production** | 32+ random characters used to sign the session cookie. A logged warning and an insecure fallback are used if it's missing. |
+| `MOCK_DB_PERSIST` | no | `false` disables writing `.data/marketin-db.json`. Persistence is turned off automatically on Vercel. |
+| `SESSION_SECRET` | **yes in production** | 32+ random characters used to sign the session cookie. In production (`npm run start`, Vercel) sign-in is disabled until it is set; there is no fallback. |
 | `NEXT_PUBLIC_SUPABASE_URL` | with Supabase | Project URL. |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | with Supabase | Public anon key. |
 | `SUPABASE_SERVICE_ROLE_KEY` | with Supabase | Server-only; used for webhooks and admin jobs. Never expose to the browser. |

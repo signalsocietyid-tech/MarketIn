@@ -10,13 +10,14 @@ import { hashPassword } from "@/lib/auth/password";
  *
  * Data lives in memory and is written through to .data/marketin-db.json in
  * development so registrations survive a dev-server restart. Set
- * MOCK_DB_PERSIST=false to keep it purely in memory (e.g. on serverless hosts).
+ * MOCK_DB_PERSIST=false to keep it purely in memory (automatic on Vercel).
  * The Supabase schema in supabase/migrations mirrors these collections 1:1.
  */
 
 const DATA_FILE = path.join(process.cwd(), ".data", "marketin-db.json");
 const SCHEMA_VERSION = 1;
-const persist = process.env.MOCK_DB_PERSIST !== "false";
+// Vercel and similar hosts have a read-only filesystem, so persistence is off there.
+const persist = process.env.MOCK_DB_PERSIST !== "false" && !process.env.VERCEL;
 
 type Stored = { version: number; db: Database };
 

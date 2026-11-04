@@ -12,8 +12,11 @@ const MAX_AGE = 60 * 60 * 24 * 14; // 14 days
 function secret() {
   const s = process.env.SESSION_SECRET;
   if (s && s.length >= 32) return s;
+  // Fail closed in production: the repository is public, so a built-in fallback
+  // secret would let anyone forge a session (including an admin one).
   if (process.env.NODE_ENV === "production") {
-    console.warn("[marketin] SESSION_SECRET is missing or shorter than 32 characters. Using an insecure fallback.");
+    console.error("[marketin] SESSION_SECRET is missing or shorter than 32 characters. Sessions are disabled.");
+    throw new Error("SESSION_SECRET is not configured");
   }
   return "marketin-dev-only-insecure-session-secret-change-me";
 }
@@ -31,7 +34,12 @@ function decode(token: string | undefined): { uid: string; exp: number } | null 
   if (!token) return null;
   const [body, sig] = token.split(".");
   if (!body || !sig) return null;
-  const expected = Buffer.from(sign(body));
+  let expected: Buffer;
+  try {
+    expected = Buffer.from(sign(body));
+  } catch {
+    return null; // no usable secret: treat every visitor as signed out
+  }
   const actual = Buffer.from(sig);
   if (expected.length !== actual.length || !timingSafeEqual(expected, actual)) return null;
   try {
