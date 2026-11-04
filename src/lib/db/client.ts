@@ -49,6 +49,9 @@ export async function createPostgresDb(url: string): Promise<Db> {
   const local = /@(localhost|127\.0\.0\.1)[:/]/.test(url);
   const sql = postgres(url, {
     prepare: false, // required by Supabase's transaction pooler
+    // Supabase's transaction pooler (Supavisor) stalls on pipelined queries, so
+    // send one query at a time per connection and parallelize across the pool.
+    max_pipeline: 1,
     max: Number(process.env.DATABASE_POOL_MAX ?? 5),
     idle_timeout: 20,
     ssl: local ? false : "require",

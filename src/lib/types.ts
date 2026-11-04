@@ -1,5 +1,5 @@
 // Core domain types for MarketIn. These mirror the Postgres schema in
-// supabase/migrations/0001_init.sql so the mock store and Supabase can share them.
+// supabase/migrations/20261104103217_init.sql (and later migrations).
 
 export type Segment = "business" | "sales" | "creator" | "agency";
 export type Role = Segment | "admin";

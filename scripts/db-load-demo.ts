@@ -4,7 +4,7 @@
  *
  *   DATABASE_URL="postgresql://..." npm run db:demo
  *
- * - Requires migrations 0001 and 0002 plus supabase/seed.sql to be applied.
+ * - Requires the migrations in supabase/migrations plus supabase/seed.sql to be applied.
  * - The demo ADMIN account is never created here: its password is public in
  *   this repository. Promote a real account instead (see README → Admin access).
  * - Demo accounts share the public demo password, so only load this into a

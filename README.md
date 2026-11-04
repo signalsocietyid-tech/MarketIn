@@ -28,7 +28,7 @@ npm run start
 
 ### Deployment (Vercel + Supabase)
 
-`main` deploys automatically to Vercel (project `signalsocietyid-tech/market-in`). Supabase (project `wvaogsqxridvpmquarlv`) is linked to the GitHub repo and applies new files in `supabase/migrations` on push to `main`.
+`main` deploys automatically to Vercel (project `signalsocietyid-tech/market-in`, production domain `market-in-six.vercel.app`). `vercel.json` pins server functions to `syd1` (Sydney), the same region as the Supabase database (`ap-southeast-2`), so database round trips stay short. Supabase (project `wvaogsqxridvpmquarlv`) is linked to the GitHub repo and applies new files in `supabase/migrations` on push to `main`.
 
 Set these in Vercel → Settings → Environment Variables (Production and Preview):
 
@@ -136,8 +136,8 @@ src/
     payments/          Payment provider interface (mock, Midtrans/Xendit stubs)
     supabase/          Supabase JS clients (reserved for Supabase Auth/Storage; not used yet)
 supabase/
-  migrations/0001_init.sql   Full Postgres schema with row-level security
-  migrations/0002_*.sql      App-managed credentials; closes the public API (server-only access)
+  migrations/*_init.sql      Full Postgres schema with row-level security
+  migrations/*_app_auth_*.sql App-managed credentials; closes the public API (server-only access)
   seed.sql                   Plans and taxonomies
 docs/
   ARCHITECTURE.md      Decisions, data flow, database access
@@ -148,7 +148,7 @@ docs/
 
 ## Database schema
 
-Defined in [supabase/migrations/0001_init.sql](supabase/migrations/0001_init.sql) and mirrored by [src/lib/types.ts](src/lib/types.ts).
+Defined in [supabase/migrations/20261104103217_init.sql](supabase/migrations/20261104103217_init.sql) and mirrored by [src/lib/types.ts](src/lib/types.ts).
 
 | Table | Purpose / key relations |
 | --- | --- |
