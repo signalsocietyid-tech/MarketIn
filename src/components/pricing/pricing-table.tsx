@@ -1,0 +1,193 @@
+"use client";
+
+import Link from "next/link";
+import { useState } from "react";
+import { Building2, Check, Megaphone, Network, Sparkles, TrendingUp } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/primitives";
+import type { BillingCycle, Role, Segment, SubscriptionPlan } from "@/lib/types";
+import { SEGMENT_LABEL } from "@/lib/constants";
+import { cn, formatIDR } from "@/lib/utils";
+
+const SEGMENT_TABS: { id: Segment; label: string; icon: typeof Building2 }[] = [
+  { id: "business", label: "Business", icon: Building2 },
+  { id: "sales", label: "Sales Partner", icon: TrendingUp },
+  { id: "creator", label: "Creator & Affiliate", icon: Megaphone },
+  { id: "agency", label: "Agency", icon: Network },
+];
+
+export type PricingViewer = { role: Role; currentPlanId?: string; pendingPlanId?: string } | null;
+
+export function PricingTable({
+  plans,
+  viewer,
+  initialSegment,
+}: {
+  plans: SubscriptionPlan[];
+  viewer: PricingViewer;
+  initialSegment?: Segment;
+}) {
+  const defaultSegment =
+    initialSegment ?? (viewer && viewer.role !== "admin" ? (viewer.role as Segment) : "business");
+  const [segment, setSegment] = useState<Segment>(defaultSegment);
+  const [cycle, setCycle] = useState<BillingCycle>("monthly");
+  const segmentTabs = SEGMENT_TABS.filter((t) => plans.some((p) => p.segment === t.id));
+  const visible = plans.filter((p) => p.segment === segment).sort((a, b) => a.sortOrder - b.sortOrder);
+  const maxSaving = Math.max(0, ...plans.filter((p) => p.priceMonthly > 0).map((p) => Math.round((1 - p.priceYearly / (p.priceMonthly * 12)) * 100)));
+
+  return (
+    <div>
+      <div className="flex flex-col items-center gap-4">
+        {segmentTabs.length > 1 && (
+        <div role="tablist" aria-label="Account type" className="flex w-full max-w-2xl gap-1 overflow-x-auto rounded-xl border border-line bg-white p-1 shadow-xs scrollbar-none">
+          {segmentTabs.map((t) => {
+            const Icon = t.icon;
+            const active = segment === t.id;
+            return (
+              <button
+                key={t.id}
+                role="tab"
+                aria-selected={active}
+                onClick={() => setSegment(t.id)}
+                className={cn(
+                  "flex flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+                  active ? "bg-navy-800 text-white shadow-xs" : "text-subtle hover:bg-canvas hover:text-ink",
+                )}
+              >
+                <Icon className="size-4" />
+                {t.label}
+              </button>
+            );
+          })}
+        </div>
+        )}
+
+        <div className="flex items-center gap-3 text-sm">
+          <div className="inline-flex rounded-lg border border-line bg-white p-0.5" role="group" aria-label="Billing cycle">
+            {(["monthly", "yearly"] as const).map((c) => (
+              <button
+                key={c}
+                onClick={() => setCycle(c)}
+                aria-pressed={cycle === c}
+                className={cn(
+                  "rounded-md px-3.5 py-1.5 font-medium capitalize transition-colors",
+                  cycle === c ? "bg-brand-50 text-brand-800" : "text-subtle hover:text-ink",
+                )}
+              >
+                {c}
+              </button>
+            ))}
+          </div>
+          {maxSaving > 0 && <span className="text-[13px] font-medium text-success-700">Save up to {maxSaving}% yearly</span>}
+        </div>
+      </div>
+
+      <div className="mx-auto mt-8 grid max-w-4xl gap-5 md:grid-cols-2">
+        {visible.map((plan) => (
+          <PlanCard key={plan.id} plan={plan} cycle={cycle} viewer={viewer} />
+        ))}
+      </div>
+      <p className="mx-auto mt-6 max-w-2xl text-center text-xs leading-relaxed text-muted">
+        Prices in Indonesian Rupiah. Introductory pricing is subject to change before general availability. Online
+        payment is not yet available — Pro upgrades are confirmed manually by our team.
+      </p>
+    </div>
+  );
+}
+
+function PlanCard({ plan, cycle, viewer }: { plan: SubscriptionPlan; cycle: BillingCycle; viewer: PricingViewer }) {
+  const free = plan.priceMonthly === 0;
+  const perMonth = cycle === "yearly" ? Math.round(plan.priceYearly / 12) : plan.priceMonthly;
+  const saving = plan.priceMonthly * 12 - plan.priceYearly;
+
+  return (
+    <div
+      className={cn(
+        "relative flex flex-col rounded-xl border bg-white p-6 shadow-card sm:p-7",
+        plan.recommended ? "border-brand-300 ring-1 ring-brand-200" : "border-line",
+      )}
+    >
+      <div className="flex items-center justify-between gap-2">
+        <h3 className="font-sans text-base font-semibold tracking-normal text-navy-900">{plan.name}</h3>
+        {plan.recommended && (
+          <Badge tone="brand">
+            <Sparkles /> Recommended
+          </Badge>
+        )}
+      </div>
+      <p className="mt-1.5 min-h-10 text-sm text-subtle">{plan.tagline}</p>
+
+      <div className="mt-5 flex items-baseline gap-1.5">
+        <span className="font-display text-[34px] font-bold tracking-tight text-navy-900">{free ? "Free" : formatIDR(perMonth)}</span>
+        {!free && <span className="text-sm text-subtle">/ month</span>}
+      </div>
+      <p className="mt-1 h-5 text-[13px] text-subtle">
+        {free
+          ? "No credit card required"
+          : cycle === "yearly"
+            ? `Billed ${formatIDR(plan.priceYearly)} yearly${saving > 0 ? ` · save ${formatIDR(saving)}` : ""}`
+            : "Billed monthly · cancel anytime"}
+      </p>
+
+      <div className="mt-6">
+        <PlanCta plan={plan} cycle={cycle} viewer={viewer} />
+      </div>
+
+      <ul className="mt-6 space-y-3 border-t border-line pt-6">
+        {plan.benefits.map((b) => (
+          <li key={b} className="flex gap-2.5 text-sm text-ink">
+            <Check className={cn("mt-0.5 size-4 shrink-0", plan.recommended ? "text-brand-600" : "text-navy-600")} />
+            {b}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+function PlanCta({ plan, cycle, viewer }: { plan: SubscriptionPlan; cycle: BillingCycle; viewer: PricingViewer }) {
+  const variant = plan.recommended ? "primary" : "secondary";
+  if (!viewer) {
+    return (
+      <Button asChild variant={variant} className="w-full">
+        <Link href={`/register?type=${plan.segment}${plan.tier === "pro" ? `&plan=${plan.id}&cycle=${cycle}` : ""}`}>
+          {plan.tier === "free" ? "Start for free" : `Get ${plan.name}`}
+        </Link>
+      </Button>
+    );
+  }
+  if (viewer.role !== plan.segment) {
+    return (
+      <Button variant="secondary" className="w-full" disabled>
+        For {SEGMENT_LABEL[plan.segment]} accounts
+      </Button>
+    );
+  }
+  const isCurrent = viewer.currentPlanId === plan.id;
+  if (isCurrent) {
+    return (
+      <Button variant="secondary" className="w-full" disabled>
+        Your current plan
+      </Button>
+    );
+  }
+  if (plan.tier === "free") {
+    return (
+      <Button asChild variant="secondary" className="w-full">
+        <Link href="/dashboard/billing">Manage plan</Link>
+      </Button>
+    );
+  }
+  if (viewer.pendingPlanId === plan.id) {
+    return (
+      <Button asChild variant="outline" className="w-full">
+        <Link href="/dashboard/billing">Upgrade pending — view status</Link>
+      </Button>
+    );
+  }
+  return (
+    <Button asChild variant={variant} className="w-full">
+      <Link href={`/checkout?plan=${plan.id}&cycle=${cycle}`}>Upgrade to {plan.name}</Link>
+    </Button>
+  );
+}
