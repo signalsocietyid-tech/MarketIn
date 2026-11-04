@@ -20,31 +20,33 @@ export default async function MarketplacePage(props: PageProps<"/marketplace">) 
 
   return (
     <>
-      <section className="border-b border-line bg-white">
-        <div className="container-page py-10 sm:py-14">
-          <div className="max-w-2xl">
-            <p className="text-[13px] font-semibold uppercase tracking-[0.08em] text-brand-700">Marketplace</p>
-            <h1 className="mt-2 text-3xl font-bold leading-tight text-navy-900 sm:text-4xl">
+      <section className="border-b border-white/70 bg-white/40 backdrop-blur-xl">
+        <div className="container-page py-12 text-center sm:py-16">
+          <div className="mx-auto max-w-2xl">
+            <p className="glass inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 text-[12px] font-semibold uppercase tracking-[0.12em] text-brand-700">
+              <span className="size-1.5 rounded-full bg-brand-500" /> Marketplace
+            </p>
+            <h1 className="mt-5 text-[36px] font-semibold leading-tight tracking-[-0.03em] text-ink sm:text-5xl">
               Find your next growth partnership
             </h1>
             <p className="mt-3 text-base leading-relaxed text-subtle sm:text-[17px]">
               Sales, distribution, affiliate, creator and agency opportunities from businesses across Indonesia.
             </p>
           </div>
-          <KeywordSearch id="marketplace-q" size="lg" className="mt-6 max-w-2xl" />
+          <KeywordSearch id="marketplace-q" size="lg" className="mx-auto mt-7 max-w-2xl" />
         </div>
       </section>
 
       <div className="container-page space-y-12 py-10">
         <section aria-labelledby="categories-heading">
-          <h2 id="categories-heading" className="mb-4 text-lg font-semibold text-navy-900">
+          <h2 id="categories-heading" className="mb-5 text-center text-xl font-semibold text-ink">
             Browse by category
           </h2>
           <CategoryTiles counts={counts} />
         </section>
 
         <section aria-labelledby="all-heading">
-          <h2 id="all-heading" className="mb-4 text-lg font-semibold text-navy-900">
+          <h2 id="all-heading" className="mb-5 text-center text-xl font-semibold text-ink">
             All opportunities
           </h2>
           <div className="grid gap-6 lg:grid-cols-[272px_minmax(0,1fr)] lg:gap-8">

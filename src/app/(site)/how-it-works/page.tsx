@@ -29,7 +29,7 @@ export default function HowItWorksPage() {
   return (
     <>
       {/* Hero + platform flow */}
-      <section className="relative overflow-hidden border-b border-line bg-white">
+      <section className="relative overflow-hidden border-b border-white/70 bg-white/40 backdrop-blur-xl">
         <div aria-hidden className="pointer-events-none absolute inset-0 bg-grid [mask-image:linear-gradient(to_bottom,black,transparent_80%)]" />
         <div className="container-page relative py-16 sm:py-20 lg:py-24">
           <div className="mx-auto max-w-3xl text-center">
@@ -105,7 +105,7 @@ export default function HowItWorksPage() {
       </section>
 
       {/* Application lifecycle */}
-      <section className="border-y border-line bg-white py-16 sm:py-20">
+      <section className="border-y border-white/70 bg-white/40 backdrop-blur-xl py-16 sm:py-20">
         <div className="container-page">
           <SectionHeading
             align="left"
@@ -175,7 +175,7 @@ export default function HowItWorksPage() {
       </section>
 
       {/* Trust & safety */}
-      <section className="border-y border-line bg-white py-16 sm:py-20">
+      <section className="border-y border-white/70 bg-white/40 backdrop-blur-xl py-16 sm:py-20">
         <div className="container-page grid gap-10 lg:grid-cols-[minmax(0,4fr)_minmax(0,8fr)]">
           <div>
             <SectionHeading

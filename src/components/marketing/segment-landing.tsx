@@ -25,7 +25,7 @@ export async function SegmentLanding({ segment }: { segment: Segment }) {
       {isAgency ? <AgencyHero content={content} /> : <StandardHero content={content} />}
       {isAgency && <AccountModel />}
       <NeedsSection content={content} />
-      <section className="border-y border-line bg-white py-16 sm:py-20">
+      <section className="border-y border-white/70 bg-white/40 backdrop-blur-xl py-16 sm:py-20">
         <div className="container-page">
           <SectionHeading eyebrow="How it works" title={content.steps.title} description={content.steps.description} />
           <StepFlow steps={content.steps.items} className="mt-12" />
@@ -50,11 +50,11 @@ function Eyebrow({ children, dark }: { children: React.ReactNode; dark?: boolean
   return (
     <p
       className={cn(
-        "inline-flex items-center gap-2 rounded-full border px-3 py-1 text-[13px] font-medium",
-        dark ? "border-white/15 bg-white/5 text-navy-100" : "border-line bg-white text-navy-800 shadow-xs",
+        "inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 text-[12px] font-semibold uppercase tracking-[0.12em]",
+        dark ? "border border-white/40 bg-white/15 text-white backdrop-blur-md" : "glass text-brand-700",
       )}
     >
-      <span aria-hidden className="size-1.5 rounded-full bg-brand-500" />
+      <span aria-hidden className={cn("size-1.5 rounded-full", dark ? "bg-white" : "bg-brand-500")} />
       {children}
     </p>
   );
@@ -62,10 +62,16 @@ function Eyebrow({ children, dark }: { children: React.ReactNode; dark?: boolean
 
 function TrustPoints({ points, dark }: { points: string[]; dark?: boolean }) {
   return (
-    <ul className="mt-8 flex flex-col gap-x-6 gap-y-2 sm:flex-row sm:flex-wrap">
+    <ul className="mt-8 flex flex-wrap items-center justify-center gap-2">
       {points.map((p) => (
-        <li key={p} className={cn("flex items-center gap-2 text-sm", dark ? "text-navy-100" : "text-subtle")}>
-          <Check className={cn("size-4 shrink-0", dark ? "text-brand-400" : "text-brand-600")} />
+        <li
+          key={p}
+          className={cn(
+            "flex items-center gap-2 rounded-full px-3.5 py-1.5 text-[13px]",
+            dark ? "border border-white/30 bg-white/12 text-white backdrop-blur-md" : "glass text-subtle",
+          )}
+        >
+          <Check className={cn("size-3.5 shrink-0", dark ? "text-white" : "text-brand-600")} />
           {p}
         </li>
       ))}
@@ -76,52 +82,51 @@ function TrustPoints({ points, dark }: { points: string[]; dark?: boolean }) {
 function HeroPanel({ content }: { content: SegmentContent }) {
   const { heroPanel } = content;
   return (
-    <Card className="overflow-hidden shadow-lift">
-      <div className="border-b border-line px-5 py-4">
-        <p className="text-[15px] font-semibold text-navy-900">{heroPanel.title}</p>
+    <div className="glass-strong mx-auto max-w-3xl rounded-[1.75rem] p-2 text-left">
+      <div className="px-4 pb-3 pt-3 text-center">
+        <p className="text-[15px] font-semibold text-ink">{heroPanel.title}</p>
         <p className="mt-0.5 text-[13px] text-subtle">{heroPanel.description}</p>
       </div>
-      <ul className="divide-y divide-line">
+      <ul className="grid gap-2 sm:grid-cols-2">
         {heroPanel.items.map(({ icon: Icon, label, detail }) => (
-          <li key={label} className="flex items-start gap-3 px-5 py-3.5">
-            <span className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-lg bg-navy-50 text-navy-700">
+          <li key={label} className="glass-interactive flex items-start gap-3 rounded-[1.25rem] border border-white/70 bg-white/55 p-4">
+            <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-brand-400 to-brand-600 text-white">
               <Icon className="size-4" />
             </span>
             <div className="min-w-0">
-              <p className="text-sm font-medium text-ink">{label}</p>
+              <p className="text-sm font-semibold text-ink">{label}</p>
               <p className="text-[13px] text-subtle">{detail}</p>
             </div>
           </li>
         ))}
       </ul>
-    </Card>
+    </div>
   );
 }
 
 function StandardHero({ content }: { content: SegmentContent }) {
   return (
-    <section className="relative overflow-hidden border-b border-line bg-white">
-      <div aria-hidden className="pointer-events-none absolute inset-0 bg-grid [mask-image:linear-gradient(to_bottom,black,transparent_85%)]" />
-      <div className="container-page relative grid gap-12 py-16 sm:py-20 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:items-center lg:gap-16 lg:py-24">
-        <div>
-          <Eyebrow>{content.eyebrow}</Eyebrow>
-          <h1 className="mt-5 text-[34px] font-bold leading-[1.1] text-navy-900 sm:text-[44px] lg:text-[50px]">
-            {content.headline}
-          </h1>
-          <p className="mt-5 max-w-xl text-base leading-relaxed text-subtle sm:text-lg">{content.subheadline}</p>
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-            <Button asChild size="lg">
-              <Link href={content.primaryCta.href}>
-                {content.primaryCta.label}
-                <ArrowRight />
-              </Link>
-            </Button>
-            <Button asChild size="lg" variant="secondary">
-              <Link href={content.secondaryCta.href}>{content.secondaryCta.label}</Link>
-            </Button>
-          </div>
-          <TrustPoints points={content.trustPoints} />
+    <section className="relative px-4 pb-16 pt-14 text-center sm:pb-20 sm:pt-20">
+      <div className="mx-auto max-w-3xl">
+        <Eyebrow>{content.eyebrow}</Eyebrow>
+        <h1 className="mt-6 text-[40px] font-semibold leading-[1.05] tracking-[-0.035em] text-ink sm:text-[56px] lg:text-[64px]">
+          {content.headline}
+        </h1>
+        <p className="mx-auto mt-5 max-w-2xl text-lg leading-relaxed text-subtle">{content.subheadline}</p>
+        <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+          <Button asChild size="lg" className="w-full sm:w-auto">
+            <Link href={content.primaryCta.href}>
+              {content.primaryCta.label}
+              <ArrowRight />
+            </Link>
+          </Button>
+          <Button asChild size="lg" variant="secondary" className="w-full sm:w-auto">
+            <Link href={content.secondaryCta.href}>{content.secondaryCta.label}</Link>
+          </Button>
         </div>
+        <TrustPoints points={content.trustPoints} />
+      </div>
+      <div className="mt-14">
         <HeroPanel content={content} />
       </div>
     </section>
@@ -132,58 +137,54 @@ function AgencyHero({ content }: { content: SegmentContent }) {
   const [root, ...branches] = content.heroPanel.items;
   const RootIcon = root.icon;
   return (
-    <section className="relative overflow-hidden bg-navy-900">
-      <div aria-hidden className="pointer-events-none absolute inset-0 bg-grid opacity-50 [mask-image:linear-gradient(to_left,black,transparent_75%)]" />
-      <div className="container-page relative grid gap-12 py-16 sm:py-20 lg:grid-cols-2 lg:items-center lg:gap-16 lg:py-24">
-        <div>
-          <Eyebrow dark>{content.eyebrow}</Eyebrow>
-          <h1 className="mt-5 text-[34px] font-bold leading-[1.1] text-white sm:text-[44px] lg:text-[48px]">{content.headline}</h1>
-          <p className="mt-5 max-w-xl text-base leading-relaxed text-navy-100 sm:text-lg">{content.subheadline}</p>
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-            <Button asChild size="lg">
-              <Link href={content.primaryCta.href}>
-                {content.primaryCta.label}
-                <ArrowRight />
+    <section className="px-4 pb-16 pt-8 sm:pb-20">
+      <div className="container-page">
+        <div className="glass-orange relative overflow-hidden rounded-[2.25rem] px-6 py-14 text-center text-white sm:px-12 sm:py-20">
+          <div aria-hidden className="pointer-events-none absolute -left-24 -top-24 size-96 rounded-full bg-white/25 blur-3xl" />
+          <div aria-hidden className="pointer-events-none absolute -bottom-32 -right-24 size-[28rem] rounded-full bg-brand-200/40 blur-3xl" />
+          <div className="relative mx-auto max-w-3xl">
+            <Eyebrow dark>{content.eyebrow}</Eyebrow>
+            <h1 className="mt-6 text-[38px] font-semibold leading-[1.05] tracking-[-0.035em] sm:text-[52px] lg:text-[60px]">{content.headline}</h1>
+            <p className="mx-auto mt-5 max-w-2xl text-lg leading-relaxed text-white/85">{content.subheadline}</p>
+            <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+              <Link
+                href={content.primaryCta.href}
+                className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-full bg-white px-6 text-[15px] font-semibold text-brand-700 shadow-[0_10px_30px_-10px_rgb(0_0_0/0.35)] transition-transform hover:-translate-y-0.5 sm:w-auto"
+              >
+                {content.primaryCta.label} <ArrowRight className="size-4" />
               </Link>
-            </Button>
-            <Button
-              asChild
-              size="lg"
-              variant="ghost"
-              className="border border-white/20 text-white hover:bg-white/10 hover:text-white"
-            >
-              <Link href={content.secondaryCta.href}>{content.secondaryCta.label}</Link>
-            </Button>
-          </div>
-          <TrustPoints points={content.trustPoints} dark />
-        </div>
-
-        {/* Account structure schematic: the agency at the root, everything it manages beneath. */}
-        <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4 sm:p-6">
-          <p className="px-1 text-[13px] font-medium text-navy-200">{content.heroPanel.title}</p>
-          <div className="mt-3 flex items-center gap-3 rounded-xl bg-white p-4 shadow-lift">
-            <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-brand-50 text-brand-700">
-              <RootIcon className="size-5" />
-            </span>
-            <div className="min-w-0">
-              <p className="text-sm font-semibold text-navy-900">{root.label}</p>
-              <p className="text-[13px] text-subtle">{root.detail}</p>
+              <Link
+                href={content.secondaryCta.href}
+                className="inline-flex h-12 w-full items-center justify-center rounded-full border border-white/50 bg-white/15 px-6 text-[15px] font-semibold text-white backdrop-blur-md transition-colors hover:bg-white/25 sm:w-auto"
+              >
+                {content.secondaryCta.label}
+              </Link>
             </div>
+            <TrustPoints points={content.trustPoints} dark />
           </div>
-          <ul className="relative ml-5 mt-2 space-y-2 border-l border-white/15 pl-5 pt-2">
-            {branches.map(({ icon: Icon, label, detail }) => (
-              <li key={label} className="relative">
-                <span aria-hidden className="absolute -left-5 top-1/2 h-px w-5 bg-white/15" />
-                <div className="flex items-center gap-3 rounded-lg border border-white/10 bg-navy-800/60 px-3.5 py-3">
-                  <Icon className="size-4 shrink-0 text-brand-300" />
+
+          {/* Account structure: the agency at the root, everything it manages beneath. */}
+          <div className="relative mx-auto mt-12 max-w-2xl rounded-[1.75rem] border border-white/40 bg-white/85 p-3 text-left text-ink shadow-[0_24px_60px_-20px_rgb(0_0_0/0.35)] backdrop-blur-xl">
+            <p className="px-2 pb-2 pt-1 text-center text-[13px] font-medium text-subtle">{content.heroPanel.title}</p>
+            <div className="flex items-center justify-center gap-3 rounded-[1.25rem] bg-gradient-to-br from-brand-400 to-brand-600 p-4 text-white">
+              <RootIcon className="size-5" />
+              <div>
+                <p className="text-sm font-semibold">{root.label}</p>
+                <p className="text-[13px] text-white/85">{root.detail}</p>
+              </div>
+            </div>
+            <ul className="mt-2 grid gap-2 sm:grid-cols-2">
+              {branches.map(({ icon: Icon, label, detail }) => (
+                <li key={label} className="flex items-center gap-3 rounded-[1.25rem] bg-white/80 px-4 py-3">
+                  <Icon className="size-4 shrink-0 text-brand-600" />
                   <div className="min-w-0">
-                    <p className="text-sm font-medium text-white">{label}</p>
-                    <p className="text-[13px] text-navy-200">{detail}</p>
+                    <p className="text-sm font-medium">{label}</p>
+                    <p className="text-[13px] text-subtle">{detail}</p>
                   </div>
-                </div>
-              </li>
-            ))}
-          </ul>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
       </div>
     </section>
@@ -195,7 +196,7 @@ function AgencyHero({ content }: { content: SegmentContent }) {
 function AccountModel() {
   const m = AGENCY_ACCOUNT_MODEL;
   return (
-    <section className="border-b border-line bg-white py-16 sm:py-20">
+    <section className="border-b border-white/70 bg-white/40 backdrop-blur-xl py-16 sm:py-20">
       <div className="container-page grid gap-10 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:items-center">
         <SectionHeading align="left" eyebrow="Account type" title={m.title} description={m.description} />
         <div className="grid gap-4 sm:grid-cols-2">

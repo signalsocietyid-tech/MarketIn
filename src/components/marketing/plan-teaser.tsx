@@ -26,7 +26,7 @@ export async function PlanTeaser({
   const pricingHref = `/pricing?segment=${segment}`;
 
   return (
-    <section className="border-y border-line bg-white py-16 sm:py-20">
+    <section className="border-y border-white/70 bg-white/40 backdrop-blur-xl py-16 sm:py-20">
       <div className="container-page grid gap-10 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:items-start">
         <div>
           <SectionHeading align="left" eyebrow="Pricing" title={title} description={description} />

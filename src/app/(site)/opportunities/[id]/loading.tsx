@@ -3,7 +3,7 @@ import { Skeleton } from "@/components/ui/primitives";
 export default function OpportunityLoading() {
   return (
     <div aria-busy="true" aria-label="Loading opportunity">
-      <div className="border-b border-line bg-white">
+      <div className="border-b border-white/70 bg-white/40 backdrop-blur-xl">
         <div className="container-page py-8 sm:py-10">
           <Skeleton className="h-3 w-48" />
           <div className="mt-5 flex items-start gap-4">

@@ -1,10 +1,11 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Plus_Jakarta_Sans } from "next/font/google";
+import { Inter } from "next/font/google";
 import { Toaster } from "sonner";
 import "./globals.css";
 
+// SF Pro is used on Apple devices via the system font stack (see globals.css);
+// Inter is the fallback everywhere else.
 const inter = Inter({ variable: "--font-inter", subsets: ["latin"] });
-const jakarta = Plus_Jakarta_Sans({ variable: "--font-jakarta", subsets: ["latin"], weight: ["500", "600", "700", "800"] });
 
 export const metadata: Metadata = {
   title: {
@@ -22,14 +23,14 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${inter.variable} ${jakarta.variable} h-full antialiased`}>
+    <html lang="en" className={`${inter.variable} h-full antialiased`}>
       <body className="flex min-h-full flex-col">
         {children}
         <Toaster
           position="top-center"
           toastOptions={{
             classNames: {
-              toast: "!rounded-lg !border-line !shadow-lift !font-sans",
+              toast: "!rounded-2xl !border-white/80 !bg-white/85 !backdrop-blur-xl !shadow-lift !font-sans",
               title: "!text-ink !font-medium",
               description: "!text-subtle",
             },

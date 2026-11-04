@@ -31,7 +31,7 @@ export default async function PricingPage(props: PageProps<"/pricing">) {
 
   return (
     <>
-      <section className="border-b border-line bg-white py-16 sm:py-20">
+      <section className="border-b border-white/70 bg-white/40 backdrop-blur-xl py-16 sm:py-20">
         <div className="container-page">
           <SectionHeading
             eyebrow="Pricing"
@@ -55,7 +55,7 @@ export default async function PricingPage(props: PageProps<"/pricing">) {
         </div>
       </section>
 
-      <section className="border-t border-line bg-white py-16 sm:py-20">
+      <section className="border-t border-white/70 bg-white/40 backdrop-blur-xl py-16 sm:py-20">
         <div className="container-page">
           <SectionHeading title="Billing questions" />
           <div className="mt-10">

@@ -14,20 +14,18 @@ const FEATURES = [
 
 export function Why() {
   return (
-    <section className="border-y border-line bg-white py-20 sm:py-24">
+    <section className="px-4 py-20 sm:py-28">
       <div className="container-page">
-        <SectionHeading
-          eyebrow="Why MarketIn"
-          title="More Than Just a Marketplace."
-          description="Tools for every stage of a partnership — from discovery to performance."
-        />
-        <div className="mt-12 grid overflow-hidden rounded-xl border border-line sm:grid-cols-2 lg:grid-cols-4">
+        <SectionHeading eyebrow="Why MarketIn" title="More Than Just a Marketplace." description="Tools for every stage of a partnership — from discovery to performance." />
+        <div className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {FEATURES.map((f) => {
             const Icon = f.icon;
             return (
-              <div key={f.title} className="border-b border-line bg-white p-6 last:border-b-0 sm:[&:nth-child(odd)]:border-r sm:[&:nth-child(n+7)]:border-b-0 lg:border-r lg:[&:nth-child(4n)]:border-r-0 lg:[&:nth-child(n+5)]:border-b-0">
-                <Icon className="size-5 text-brand-600" />
-                <h3 className="mt-4 font-sans text-[15px] font-semibold tracking-normal text-navy-900">{f.title}</h3>
+              <div key={f.title} className="glass glass-interactive flex flex-col items-center rounded-[1.5rem] p-6 text-center">
+                <span className="flex size-11 items-center justify-center rounded-2xl bg-white/80 shadow-[inset_0_1px_0_white,0_6px_16px_-8px_rgb(244_119_53/0.5)]">
+                  <Icon className="size-5 text-brand-600" />
+                </span>
+                <h3 className="mt-4 text-[15px] font-semibold text-ink">{f.title}</h3>
                 <p className="mt-1.5 text-sm leading-relaxed text-subtle">{f.body}</p>
               </div>
             );

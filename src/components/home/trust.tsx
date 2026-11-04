@@ -14,39 +14,35 @@ const PILLARS = [
 
 export function Trust({ samples }: { samples: ProfileView[] }) {
   return (
-    <section className="border-y border-line bg-white py-20 sm:py-24">
+    <section className="px-4 py-20 sm:py-28">
       <div className="container-page">
         <SectionHeading eyebrow="Trust & community" title="Built for Meaningful Business Partnerships." />
-        <div className={samples.length ? "mt-12 grid gap-10 lg:grid-cols-[1fr_1.3fr] lg:gap-14" : "mt-12"}>
-          <div className={samples.length ? "grid gap-6 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2" : "grid gap-6 sm:grid-cols-2 lg:grid-cols-3"}>
-            {PILLARS.map((p) => {
-              const Icon = p.icon;
-              return (
-                <div key={p.title} className="flex gap-3.5">
-                  <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-navy-50">
-                    <Icon className="size-[18px] text-navy-700" />
-                  </span>
-                  <div>
-                    <h3 className="font-sans text-sm font-semibold tracking-normal text-navy-900">{p.title}</h3>
-                    <p className="mt-1 text-[13px] leading-relaxed text-subtle">{p.body}</p>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-          {samples.length > 0 && (
-          <div>
-            <div className="grid gap-4 sm:grid-cols-2">
+        <div className="mx-auto mt-14 grid max-w-5xl gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {PILLARS.map((p) => {
+            const Icon = p.icon;
+            return (
+              <div key={p.title} className="glass glass-interactive flex flex-col items-center rounded-[1.5rem] p-6 text-center">
+                <span className="flex size-11 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-400 to-brand-600 text-white">
+                  <Icon className="size-5" />
+                </span>
+                <h3 className="mt-4 text-[15px] font-semibold text-ink">{p.title}</h3>
+                <p className="mt-1.5 text-sm leading-relaxed text-subtle">{p.body}</p>
+              </div>
+            );
+          })}
+        </div>
+        {samples.length > 0 && (
+          <div className="mt-14">
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               {samples.map((p) => (
                 <ProfileCard key={p.id} profile={p} showSave={false} />
               ))}
             </div>
-            <p className="mt-4 text-xs text-muted">
+            <p className="mt-4 text-center text-xs text-muted">
               Illustrative sample profiles from MarketIn&apos;s demo environment. Names and figures are fictional.
             </p>
           </div>
-          )}
-        </div>
+        )}
       </div>
     </section>
   );

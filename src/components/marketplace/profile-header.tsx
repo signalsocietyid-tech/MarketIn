@@ -20,7 +20,7 @@ export function ProfileHeader({
   const square = p.role === "business" || p.role === "agency";
   const website = safeUrl(p.website);
   return (
-    <section className="border-b border-line bg-white">
+    <section className="border-b border-white/70 bg-white/40 backdrop-blur-xl">
       <div className="container-page py-8 sm:py-10">
         <div className="flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
           <div className="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-start">

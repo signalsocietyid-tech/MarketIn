@@ -1,11 +1,10 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 type CtaLink = { label: string; href: string };
 
-/** Closing call-to-action band: navy surface, single orange primary action. */
+/** Closing call-to-action band: orange glass panel, centered. */
 export function CtaBand({
   title,
   description,
@@ -20,31 +19,28 @@ export function CtaBand({
   className?: string;
 }) {
   return (
-    <section className={cn("py-16 sm:py-20", className)}>
+    <section className={cn("px-4 py-16 sm:py-20", className)}>
       <div className="container-page">
-        <div className="relative overflow-hidden rounded-2xl bg-navy-900 px-6 py-12 sm:px-12 sm:py-14">
-          <div aria-hidden className="pointer-events-none absolute inset-0 bg-grid opacity-40 [mask-image:linear-gradient(to_left,black,transparent_70%)]" />
-          <div className="relative flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
-            <div className="max-w-xl">
-              <h2 className="text-[26px] font-bold leading-tight text-white sm:text-[32px]">{title}</h2>
-              {description && <p className="mt-3 text-base leading-relaxed text-navy-100">{description}</p>}
-            </div>
-            <div className="flex flex-col gap-3 sm:flex-row">
-              <Button asChild size="lg">
-                <Link href={primary.href}>
-                  {primary.label}
-                  <ArrowRight />
-                </Link>
-              </Button>
+        <div className="glass-orange relative overflow-hidden rounded-[2rem] px-6 py-14 text-center text-white sm:px-12">
+          <div aria-hidden className="pointer-events-none absolute -left-20 -top-24 size-72 rounded-full bg-white/25 blur-3xl" />
+          <div aria-hidden className="pointer-events-none absolute -bottom-28 -right-16 size-80 rounded-full bg-brand-200/40 blur-3xl" />
+          <div className="relative mx-auto max-w-2xl">
+            <h2 className="text-[30px] font-semibold leading-tight sm:text-[38px]">{title}</h2>
+            {description && <p className="mt-3 text-base leading-relaxed text-white/85 sm:text-lg">{description}</p>}
+            <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
+              <Link
+                href={primary.href}
+                className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-white px-6 text-[15px] font-semibold text-brand-700 shadow-[0_10px_30px_-10px_rgb(0_0_0/0.35)] transition-transform hover:-translate-y-0.5"
+              >
+                {primary.label} <ArrowRight className="size-4" />
+              </Link>
               {secondary && (
-                <Button
-                  asChild
-                  size="lg"
-                  variant="ghost"
-                  className="border border-white/20 text-white hover:bg-white/10 hover:text-white"
+                <Link
+                  href={secondary.href}
+                  className="inline-flex h-12 items-center justify-center rounded-full border border-white/50 bg-white/15 px-6 text-[15px] font-semibold text-white backdrop-blur-md transition-colors hover:bg-white/25"
                 >
-                  <Link href={secondary.href}>{secondary.label}</Link>
-                </Button>
+                  {secondary.label}
+                </Link>
               )}
             </div>
           </div>

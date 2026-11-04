@@ -61,7 +61,7 @@ export default async function OpportunityPage(props: PageProps<"/opportunities/[
 
   return (
     <>
-      <section className="border-b border-line bg-white">
+      <section className="border-b border-white/70 bg-white/40 backdrop-blur-xl">
         <div className="container-page py-8 sm:py-10">
           <nav aria-label="Breadcrumb" className="flex flex-wrap items-center gap-1 text-[13px] text-subtle">
             <Link href="/marketplace" className="hover:text-ink">
@@ -150,7 +150,7 @@ export default async function OpportunityPage(props: PageProps<"/opportunities/[
       </div>
 
       {similarItems.length > 0 && (
-        <section className="border-t border-line bg-white" aria-labelledby="similar-heading">
+        <section className="border-t border-white/70 bg-white/40 backdrop-blur-xl" aria-labelledby="similar-heading">
           <div className="container-page py-10">
             <div className="mb-5 flex items-end justify-between gap-4">
               <div>

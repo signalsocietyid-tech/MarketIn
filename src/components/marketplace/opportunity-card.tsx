@@ -27,7 +27,7 @@ export function OpportunityCard({
 }) {
   const left = daysUntil(o.deadline);
   return (
-    <article className="group relative flex h-full flex-col rounded-xl border border-line bg-white p-5 shadow-card transition-all hover:-translate-y-0.5 hover:border-navy-100 hover:shadow-lift">
+    <article className="glass glass-interactive group relative flex h-full flex-col rounded-[1.5rem] p-5">
       <div className="flex items-start justify-between gap-3">
         <div className="flex min-w-0 items-center gap-3">
           <Avatar name={o.companyName} src={o.businessLogo} size={40} square />
@@ -77,7 +77,7 @@ export function OpportunityCard({
       </dl>
 
       <div className="mt-auto pt-4">
-        <div className="rounded-lg bg-canvas px-3 py-2 text-[13px] font-medium text-navy-800">
+        <div className="rounded-2xl bg-white/70 px-3 py-2 text-[13px] font-medium text-ink">
           {locked ? (
             <span className="flex items-center gap-1.5 text-subtle">
               <Lock className="size-3.5" /> Terms visible to Pro members

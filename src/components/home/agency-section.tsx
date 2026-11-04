@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { ArrowRight, BarChart3, Briefcase, FolderKanban, Inbox, Search, UsersRound } from "lucide-react";
-import { Button } from "@/components/ui/button";
 
 const FEATURES = [
   { icon: UsersRound, title: "Centralized Talent Management", body: "Creators, affiliates and sales reps in one roster." },
@@ -12,85 +11,84 @@ const FEATURES = [
 ];
 
 const ROSTER = [
-  { name: "Laras A.", role: "Beauty · Instagram", status: "On project", tone: "bg-brand-50 text-brand-800" },
-  { name: "Dewi P.", role: "Lifestyle · TikTok", status: "Available", tone: "bg-success-50 text-success-700" },
-  { name: "Yoga P.", role: "Field sales · Jabodetabek", status: "Available", tone: "bg-success-50 text-success-700" },
-  { name: "Citra M.", role: "Beauty affiliate", status: "On project", tone: "bg-brand-50 text-brand-800" },
+  { name: "Laras A.", role: "Beauty · Instagram", status: "On project" },
+  { name: "Dewi P.", role: "Lifestyle · TikTok", status: "Available" },
+  { name: "Yoga P.", role: "Field sales · Jabodetabek", status: "Available" },
 ];
 
 export function AgencySection() {
   return (
-    <section className="py-20 sm:py-24">
+    <section className="px-4 py-20 sm:py-28">
       <div className="container-page">
-        <div className="overflow-hidden rounded-2xl bg-navy-900 text-white">
-          <div className="grid gap-12 p-8 sm:p-12 lg:grid-cols-[1fr_1.05fr] lg:p-14">
-            <div>
-              <p className="text-[13px] font-semibold uppercase tracking-[0.08em] text-brand-300">For agencies</p>
-              <h2 className="mt-3 text-[28px] font-bold leading-tight sm:text-[34px]">Manage Your Network. Unlock More Opportunities.</h2>
-              <p className="mt-4 max-w-lg leading-relaxed text-navy-100">
-                Whether you manage sales professionals, creators, or affiliate marketers, MarketIn helps your agency connect
-                with businesses and manage partnerships in one place.
-              </p>
-              <div className="mt-8 grid gap-x-6 gap-y-5 sm:grid-cols-2">
-                {FEATURES.map((f) => {
-                  const Icon = f.icon;
-                  return (
-                    <div key={f.title} className="flex gap-3">
-                      <span className="flex size-8 shrink-0 items-center justify-center rounded-md bg-white/10">
-                        <Icon className="size-4 text-brand-300" />
-                      </span>
-                      <div>
-                        <p className="text-sm font-semibold">{f.title}</p>
-                        <p className="mt-0.5 text-[13px] leading-snug text-navy-200">{f.body}</p>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-              <div className="mt-10 flex flex-col gap-3 sm:flex-row">
-                <Button asChild size="lg">
-                  <Link href="/register?type=agency">
-                    Register Your Agency <ArrowRight />
-                  </Link>
-                </Button>
-                <Button asChild size="lg" variant="ghost" className="text-navy-100 hover:bg-white/10 hover:text-white">
-                  <Link href="/for-agencies">Learn more</Link>
-                </Button>
-              </div>
-            </div>
+        <div className="glass-orange relative overflow-hidden rounded-[2.25rem] px-6 py-14 text-center text-white sm:px-12 sm:py-20">
+          <div aria-hidden className="pointer-events-none absolute -left-24 -top-24 size-96 rounded-full bg-white/25 blur-3xl" />
+          <div aria-hidden className="pointer-events-none absolute -bottom-32 -right-24 size-[28rem] rounded-full bg-brand-200/40 blur-3xl" />
+          <div className="relative mx-auto max-w-3xl">
+            <p className="mx-auto inline-flex items-center gap-2 rounded-full border border-white/40 bg-white/15 px-3.5 py-1.5 text-[12px] font-semibold uppercase tracking-[0.12em] backdrop-blur-md">
+              <span className="size-1.5 rounded-full bg-white" /> For agencies
+            </p>
+            <h2 className="mt-5 text-[32px] font-semibold leading-[1.1] sm:text-[44px]">Manage Your Network. Unlock More Opportunities.</h2>
+            <p className="mx-auto mt-4 max-w-2xl text-base leading-relaxed text-white/85 sm:text-lg">
+              Whether you manage sales professionals, creators, or affiliate marketers, MarketIn helps your agency connect with
+              businesses and manage partnerships in one place.
+            </p>
+          </div>
 
-            {/* Illustrative roster panel */}
-            <div className="self-center rounded-xl border border-white/10 bg-white/[0.04] p-4 sm:p-5" role="img" aria-label="Illustrative agency roster preview">
-              <div className="flex items-center justify-between">
-                <p className="text-sm font-semibold">Talent roster</p>
-                <span className="rounded-md bg-white/10 px-2 py-0.5 text-[11px] text-navy-100">4 of 50 seats</span>
-              </div>
-              <ul className="mt-4 divide-y divide-white/10 overflow-hidden rounded-lg border border-white/10 bg-navy-950/40">
-                {ROSTER.map((r) => (
-                  <li key={r.name} className="flex items-center justify-between gap-3 px-4 py-3">
-                    <div className="flex min-w-0 items-center gap-3">
-                      <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-white/10 text-[11px] font-semibold">
-                        {r.name.split(" ").map((p) => p[0]).join("")}
-                      </span>
-                      <div className="min-w-0">
-                        <p className="truncate text-sm font-medium">{r.name}</p>
-                        <p className="truncate text-xs text-navy-200">{r.role}</p>
-                      </div>
-                    </div>
-                    <span className={`shrink-0 rounded-md px-2 py-0.5 text-[11px] font-medium ${r.tone}`}>{r.status}</span>
-                  </li>
-                ))}
-              </ul>
-              <div className="mt-4 grid grid-cols-3 gap-3">
-                {[["3", "Client campaigns"], ["12", "Proposals"], ["2", "Inbox briefs"]].map(([v, l]) => (
-                  <div key={l} className="rounded-lg border border-white/10 px-3 py-2.5">
-                    <p className="font-display text-xl font-bold">{v}</p>
-                    <p className="text-[11px] text-navy-200">{l}</p>
-                  </div>
-                ))}
-              </div>
-              <p className="mt-3 text-[11px] text-navy-200/80">Illustrative preview with sample data.</p>
+          <div className="relative mx-auto mt-12 grid max-w-4xl gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {FEATURES.map((f) => {
+              const Icon = f.icon;
+              return (
+                <div key={f.title} className="flex flex-col items-center rounded-3xl border border-white/30 bg-white/12 p-5 backdrop-blur-md transition-colors hover:bg-white/20">
+                  <span className="flex size-10 items-center justify-center rounded-2xl bg-white/90 text-brand-600">
+                    <Icon className="size-[18px]" />
+                  </span>
+                  <p className="mt-3 text-sm font-semibold">{f.title}</p>
+                  <p className="mt-1 text-[13px] leading-snug text-white/80">{f.body}</p>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Illustrative roster */}
+          <div className="relative mx-auto mt-10 max-w-md rounded-3xl border border-white/40 bg-white/85 p-4 text-left text-ink shadow-[0_24px_60px_-20px_rgb(0_0_0/0.35)] backdrop-blur-xl" role="img" aria-label="Illustrative agency roster preview">
+            <div className="flex items-center justify-between px-1">
+              <p className="text-sm font-semibold">Talent roster</p>
+              <span className="rounded-full bg-brand-50 px-2.5 py-0.5 text-[11px] font-semibold text-brand-700">3 of 50 seats</span>
             </div>
+            <ul className="mt-3 space-y-1.5">
+              {ROSTER.map((r) => (
+                <li key={r.name} className="flex items-center justify-between gap-3 rounded-2xl bg-white/80 px-3 py-2.5">
+                  <span className="flex min-w-0 items-center gap-2.5">
+                    <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-brand-100 text-[11px] font-semibold text-brand-800">
+                      {r.name.split(" ").map((p) => p[0]).join("")}
+                    </span>
+                    <span className="min-w-0">
+                      <span className="block truncate text-sm font-medium">{r.name}</span>
+                      <span className="block truncate text-xs text-subtle">{r.role}</span>
+                    </span>
+                  </span>
+                  <span className={`shrink-0 rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${r.status === "Available" ? "bg-brand-500 text-white" : "bg-brand-50 text-brand-700"}`}>
+                    {r.status}
+                  </span>
+                </li>
+              ))}
+            </ul>
+            <p className="mt-3 px-1 text-[11px] text-muted">Illustrative preview with sample data.</p>
+          </div>
+
+          <div className="relative mt-10 flex flex-col justify-center gap-3 sm:flex-row">
+            <Link
+              href="/register?type=agency"
+              className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-white px-6 text-[15px] font-semibold text-brand-700 shadow-[0_10px_30px_-10px_rgb(0_0_0/0.35)] transition-transform hover:-translate-y-0.5"
+            >
+              Register Your Agency <ArrowRight className="size-4" />
+            </Link>
+            <Link
+              href="/for-agencies"
+              className="inline-flex h-12 items-center justify-center rounded-full border border-white/50 bg-white/15 px-6 text-[15px] font-semibold text-white backdrop-blur-md transition-colors hover:bg-white/25"
+            >
+              Learn more
+            </Link>
           </div>
         </div>
       </div>

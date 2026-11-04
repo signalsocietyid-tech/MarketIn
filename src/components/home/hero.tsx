@@ -7,49 +7,49 @@ const TRUST = ["Free registration", "Multiple partnership opportunities", "Built
 
 export function Hero() {
   return (
-    <section className="relative overflow-hidden border-b border-line bg-white">
-      <div className="pointer-events-none absolute inset-0 bg-grid [mask-image:radial-gradient(ellipse_70%_60%_at_70%_30%,black,transparent)]" />
-      <div className="container-page relative grid items-center gap-14 pb-20 pt-14 sm:pt-20 lg:grid-cols-[1.05fr_1fr] lg:gap-10 lg:pb-28 lg:pt-24">
-        <div className="max-w-xl">
-          <Link
-            href="/how-it-works"
-            className="inline-flex items-center gap-2 rounded-full border border-line bg-white py-1 pl-1 pr-3 text-[13px] text-subtle shadow-xs transition-colors hover:border-brand-200"
-          >
-            <span className="rounded-full bg-brand-50 px-2 py-0.5 text-xs font-semibold text-brand-800">New</span>
-            One Platform. Multiple Growth Opportunities.
-            <ArrowRight className="size-3.5" />
-          </Link>
-          <h1 className="mt-6 text-[40px] font-extrabold leading-[1.08] text-navy-900 sm:text-5xl lg:text-[56px]">
-            Grow Your Business Through the <span className="text-brand-500">Right Connections.</span>
-          </h1>
-          <p className="mt-6 text-[17px] leading-relaxed text-subtle sm:text-lg">
-            Find trusted sales partners, distributors, affiliates, KOLs, and agencies to accelerate your business growth —
-            all in one platform.
-          </p>
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-            <Button asChild size="lg">
-              <Link href="/register">
-                Get Started for Free <ArrowRight />
-              </Link>
-            </Button>
-            <Button asChild size="lg" variant="secondary">
-              <Link href="/marketplace">Explore Opportunities</Link>
-            </Button>
-          </div>
-          <ul className="mt-8 flex flex-col gap-2.5 text-sm text-subtle sm:flex-row sm:flex-wrap sm:gap-x-6">
-            {TRUST.map((t) => (
-              <li key={t} className="flex items-center gap-2">
-                <span className="flex size-4 items-center justify-center rounded-full bg-success-50">
-                  <Check className="size-3 text-success-700" />
-                </span>
-                {t}
-              </li>
-            ))}
-          </ul>
+    <section className="relative px-4 pb-20 pt-16 text-center sm:pt-24">
+      <div className="mx-auto max-w-4xl">
+        <Link
+          href="/how-it-works"
+          className="glass glass-interactive mx-auto inline-flex items-center gap-2 rounded-full py-1.5 pl-1.5 pr-4 text-[13px] text-subtle motion-safe:animate-rise"
+        >
+          <span className="rounded-full bg-gradient-to-b from-brand-400 to-brand-500 px-2.5 py-0.5 text-xs font-semibold text-white">New</span>
+          One Platform. Multiple Growth Opportunities.
+          <ArrowRight className="size-3.5" />
+        </Link>
+
+        <h1 className="mx-auto mt-8 max-w-4xl text-[44px] font-semibold leading-[1.02] tracking-[-0.04em] text-ink motion-safe:animate-rise sm:text-6xl lg:text-[80px]">
+          Grow Your Business Through the <span className="text-gradient-brand">Right Connections.</span>
+        </h1>
+
+        <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-subtle motion-safe:animate-rise sm:text-xl">
+          Find trusted sales partners, distributors, affiliates, KOLs, and agencies to accelerate your business growth — all in
+          one platform.
+        </p>
+
+        <div className="mt-9 flex flex-col items-center justify-center gap-3 motion-safe:animate-rise sm:flex-row">
+          <Button asChild size="lg" className="w-full sm:w-auto">
+            <Link href="/register">
+              Get Started for Free <ArrowRight />
+            </Link>
+          </Button>
+          <Button asChild size="lg" variant="secondary" className="w-full sm:w-auto">
+            <Link href="/marketplace">Explore Opportunities</Link>
+          </Button>
         </div>
-        <div className="lg:pl-6">
-          <HeroVisual />
-        </div>
+
+        <ul className="mt-8 flex flex-wrap items-center justify-center gap-2">
+          {TRUST.map((t) => (
+            <li key={t} className="glass flex items-center gap-2 rounded-full px-3.5 py-1.5 text-[13px] text-subtle">
+              <Check className="size-3.5 text-brand-600" />
+              {t}
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <div className="mx-auto mt-16 max-w-5xl">
+        <HeroVisual />
       </div>
     </section>
   );

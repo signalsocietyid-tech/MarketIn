@@ -39,7 +39,7 @@ export function PricingTable({
     <div>
       <div className="flex flex-col items-center gap-4">
         {segmentTabs.length > 1 && (
-        <div role="tablist" aria-label="Account type" className="flex w-full max-w-2xl gap-1 overflow-x-auto rounded-xl border border-line bg-white p-1 shadow-xs scrollbar-none">
+        <div role="tablist" aria-label="Account type" className="glass flex w-full max-w-2xl gap-1 overflow-x-auto rounded-full p-1 scrollbar-none">
           {segmentTabs.map((t) => {
             const Icon = t.icon;
             const active = segment === t.id;
@@ -50,8 +50,10 @@ export function PricingTable({
                 aria-selected={active}
                 onClick={() => setSegment(t.id)}
                 className={cn(
-                  "flex flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-lg px-3 py-2 text-sm font-medium transition-colors",
-                  active ? "bg-navy-800 text-white shadow-xs" : "text-subtle hover:bg-canvas hover:text-ink",
+                  "flex flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-full px-3 py-2 text-sm font-medium transition-all",
+                  active
+                    ? "bg-gradient-to-b from-brand-400 to-brand-500 text-white shadow-[0_6px_16px_-6px_rgb(244_119_53/0.7)]"
+                    : "text-subtle hover:bg-white/60 hover:text-ink",
                 )}
               >
                 <Icon className="size-4" />
@@ -63,22 +65,22 @@ export function PricingTable({
         )}
 
         <div className="flex items-center gap-3 text-sm">
-          <div className="inline-flex rounded-lg border border-line bg-white p-0.5" role="group" aria-label="Billing cycle">
+          <div className="glass inline-flex rounded-full p-1" role="group" aria-label="Billing cycle">
             {(["monthly", "yearly"] as const).map((c) => (
               <button
                 key={c}
                 onClick={() => setCycle(c)}
                 aria-pressed={cycle === c}
                 className={cn(
-                  "rounded-md px-3.5 py-1.5 font-medium capitalize transition-colors",
-                  cycle === c ? "bg-brand-50 text-brand-800" : "text-subtle hover:text-ink",
+                  "rounded-full px-4 py-1.5 font-medium capitalize transition-colors",
+                  cycle === c ? "bg-white text-brand-700 shadow-[0_2px_8px_-2px_rgb(244_119_53/0.35)]" : "text-subtle hover:text-ink",
                 )}
               >
                 {c}
               </button>
             ))}
           </div>
-          {maxSaving > 0 && <span className="text-[13px] font-medium text-success-700">Save up to {maxSaving}% yearly</span>}
+          {maxSaving > 0 && <span className="rounded-full bg-brand-50 px-3 py-1 text-[13px] font-semibold text-brand-700">Save up to {maxSaving}% yearly</span>}
         </div>
       </div>
 
@@ -103,22 +105,22 @@ function PlanCard({ plan, cycle, viewer }: { plan: SubscriptionPlan; cycle: Bill
   return (
     <div
       className={cn(
-        "relative flex flex-col rounded-xl border bg-white p-6 shadow-card sm:p-7",
-        plan.recommended ? "border-brand-300 ring-1 ring-brand-200" : "border-line",
+        "relative flex flex-col rounded-[1.75rem] p-7 text-center sm:p-8",
+        plan.recommended ? "glass-strong ring-2 ring-brand-300/70 shadow-[0_30px_60px_-24px_rgb(244_119_53/0.5)]" : "glass",
       )}
     >
-      <div className="flex items-center justify-between gap-2">
-        <h3 className="font-sans text-base font-semibold tracking-normal text-navy-900">{plan.name}</h3>
+      <div className="flex flex-col items-center gap-2">
+        <h3 className="text-lg font-semibold text-ink">{plan.name}</h3>
         {plan.recommended && (
           <Badge tone="brand">
             <Sparkles /> Recommended
           </Badge>
         )}
       </div>
-      <p className="mt-1.5 min-h-10 text-sm text-subtle">{plan.tagline}</p>
+      <p className="mt-2 min-h-10 text-sm text-subtle">{plan.tagline}</p>
 
-      <div className="mt-5 flex items-baseline gap-1.5">
-        <span className="font-display text-[34px] font-bold tracking-tight text-navy-900">{free ? "Free" : formatIDR(perMonth)}</span>
+      <div className="mt-5 flex items-baseline justify-center gap-1.5">
+        <span className="font-display text-[40px] font-semibold tracking-[-0.04em] text-ink">{free ? "Free" : formatIDR(perMonth)}</span>
         {!free && <span className="text-sm text-subtle">/ month</span>}
       </div>
       <p className="mt-1 h-5 text-[13px] text-subtle">
@@ -133,10 +135,10 @@ function PlanCard({ plan, cycle, viewer }: { plan: SubscriptionPlan; cycle: Bill
         <PlanCta plan={plan} cycle={cycle} viewer={viewer} />
       </div>
 
-      <ul className="mt-6 space-y-3 border-t border-line pt-6">
+      <ul className="mx-auto mt-7 w-full max-w-xs space-y-3 border-t border-black/5 pt-7 text-left">
         {plan.benefits.map((b) => (
           <li key={b} className="flex gap-2.5 text-sm text-ink">
-            <Check className={cn("mt-0.5 size-4 shrink-0", plan.recommended ? "text-brand-600" : "text-navy-600")} />
+            <Check className="mt-0.5 size-4 shrink-0 text-brand-600" />
             {b}
           </li>
         ))}

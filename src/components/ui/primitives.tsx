@@ -166,9 +166,14 @@ export function SectionHeading({
 }) {
   return (
     <div className={cn(align === "center" ? "mx-auto max-w-2xl text-center" : "max-w-2xl", className)}>
-      {eyebrow && <p className="mb-3 text-[13px] font-semibold uppercase tracking-[0.08em] text-brand-700">{eyebrow}</p>}
-      <h2 className="text-[28px] font-bold leading-tight text-navy-900 sm:text-[34px]">{title}</h2>
-      {description && <p className="mt-4 text-base leading-relaxed text-subtle sm:text-[17px]">{description}</p>}
+      {eyebrow && (
+        <p className="glass mb-5 inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 text-[12px] font-semibold uppercase tracking-[0.12em] text-brand-700">
+          <span className="size-1.5 rounded-full bg-brand-500" />
+          {eyebrow}
+        </p>
+      )}
+      <h2 className="text-[32px] font-semibold leading-[1.1] text-ink sm:text-[44px]">{title}</h2>
+      {description && <p className="mt-4 text-base leading-relaxed text-subtle sm:text-lg">{description}</p>}
     </div>
   );
 }

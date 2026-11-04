@@ -19,7 +19,7 @@ export function ProfileCard({
   showSave?: boolean;
 }) {
   return (
-    <article className="group relative flex h-full flex-col rounded-xl border border-line bg-white p-5 shadow-card transition-all hover:-translate-y-0.5 hover:border-navy-100 hover:shadow-lift">
+    <article className="glass glass-interactive group relative flex h-full flex-col rounded-[1.5rem] p-5">
       <div className="flex items-start justify-between gap-3">
         <div className="flex min-w-0 items-center gap-3">
           <Avatar name={p.name} src={p.avatarUrl} size={48} square={p.role === "business" || p.role === "agency"} />
@@ -70,7 +70,7 @@ export function ProfileCard({
         ))}
       </div>
 
-      <dl className="mt-auto grid grid-cols-3 gap-2 border-t border-line pt-4 text-center">
+      <dl className="mt-auto grid grid-cols-3 gap-2 border-t border-black/5 pt-4 text-center">
         {p.stats.map((s) => (
           <div key={s.label}>
             <dd className="text-sm font-semibold text-navy-900">{s.value}</dd>

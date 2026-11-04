@@ -24,7 +24,7 @@ function CardSkeleton() {
 export default function MarketplaceLoading() {
   return (
     <div aria-busy="true" aria-label="Loading marketplace">
-      <div className="border-b border-line bg-white">
+      <div className="border-b border-white/70 bg-white/40 backdrop-blur-xl">
         <div className="container-page py-10 sm:py-14">
           <Skeleton className="h-3 w-24" />
           <Skeleton className="mt-3 h-9 w-full max-w-md" />

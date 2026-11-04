@@ -55,9 +55,9 @@ export async function CategoryPage({ category, searchParams }: { category: Marke
 
   return (
     <>
-      <section className="border-b border-line bg-white">
+      <section className="border-b border-white/70 bg-white/40 backdrop-blur-xl">
         <div className="container-page pt-8 sm:pt-10">
-          <nav aria-label="Breadcrumb" className="flex items-center gap-1 text-[13px] text-subtle">
+          <nav aria-label="Breadcrumb" className="flex items-center justify-center gap-1 text-[13px] text-subtle">
             <Link href="/marketplace" className="hover:text-ink">
               Marketplace
             </Link>
@@ -65,20 +65,20 @@ export async function CategoryPage({ category, searchParams }: { category: Marke
             <span className="text-ink">{meta.label}</span>
           </nav>
 
-          <div className="mt-4 flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
-            <div className="flex max-w-2xl gap-4">
-              <span className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-brand-50 text-brand-600 ring-1 ring-brand-100">
+          <div className="mt-6 flex flex-col items-center gap-5 text-center">
+            <div className="flex max-w-2xl flex-col items-center gap-4">
+              <span className="flex size-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-400 to-brand-600 text-white shadow-[0_12px_24px_-10px_rgb(244_119_53/0.8)]">
                 <Icon className="size-6" />
               </span>
               <div>
-                <h1 className="text-2xl font-bold text-navy-900 sm:text-[30px]">{meta.label}</h1>
+                <h1 className="text-[32px] font-semibold tracking-[-0.03em] text-ink sm:text-[44px]">{meta.label}</h1>
                 <p className="mt-2 text-[15px] leading-relaxed text-subtle">{cfg.description}</p>
               </div>
             </div>
             <HeaderCta role={user?.role} />
           </div>
 
-          <nav aria-label="Marketplace view" className="-mb-px mt-7 flex gap-6">
+          <nav aria-label="Marketplace view" className="-mb-px mt-8 flex justify-center gap-6">
             {tabs.map((t) => {
               const active = t.key === view;
               return (
