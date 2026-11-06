@@ -4,22 +4,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { Dialog as DialogPrimitive } from "radix-ui";
-import {
-  ArrowRight,
-  Building2,
-  ChevronDown,
-  LayoutDashboard,
-  LogOut,
-  Megaphone,
-  Menu,
-  Network,
-  Settings,
-  Store,
-  TrendingUp,
-  UserRound,
-  X,
-  type LucideIcon,
-} from "lucide-react";
+import { ArrowRight, ChevronDown, LayoutDashboard, LogOut, Menu, Settings, UserRound, X } from "lucide-react";
+import { Icon3D, type Icon3DName } from "@/components/brand/icon-3d";
 import { Logo } from "@/components/brand/logo";
 import { Button } from "@/components/ui/button";
 import { Avatar } from "@/components/ui/primitives";
@@ -37,16 +23,16 @@ import { SEGMENT_LABEL } from "@/lib/constants";
 import type { SessionUser } from "@/lib/auth/session";
 import { cn } from "@/lib/utils";
 
-type ProductLink = { href: string; label: string; body: string; icon: LucideIcon };
+type ProductLink = { href: string; label: string; body: string; icon: Icon3DName };
 
 export const PRODUCT_LINKS: ProductLink[] = [
-  { href: "/for-business", label: "For Business", body: "Find sales partners, distributors, affiliates and KOLs.", icon: Building2 },
-  { href: "/for-sales-partners", label: "For Sales Partners", body: "Commission-based deals and products to distribute.", icon: TrendingUp },
-  { href: "/for-creators", label: "For KOL & Creators", body: "Paid campaigns, affiliate programs and UGC work.", icon: Megaphone },
-  { href: "/for-agencies", label: "For Agencies", body: "Manage your talents and win client partnerships.", icon: Network },
+  { href: "/for-business", label: "For Business", body: "Find sales partners, distributors, affiliates and KOLs.", icon: "office_building" },
+  { href: "/for-sales-partners", label: "For Sales Partners", body: "Commission-based deals and products to distribute.", icon: "chart_increasing" },
+  { href: "/for-creators", label: "For KOL & Creators", body: "Paid campaigns, affiliate programs and UGC work.", icon: "video_camera" },
+  { href: "/for-agencies", label: "For Agencies", body: "Manage your talents and win client partnerships.", icon: "busts_in_silhouette" },
 ];
 
-const MARKETPLACE_LINK: ProductLink = { href: "/marketplace", label: "Explore Marketplace", body: "Browse every open opportunity and partner.", icon: Store };
+const MARKETPLACE_LINK: ProductLink = { href: "/marketplace", label: "Explore Marketplace", body: "Browse every open opportunity and partner.", icon: "department_store" };
 
 const LINKS = [
   { href: "/", label: "Home" },
@@ -137,20 +123,17 @@ export function Navbar({ user }: { user: SessionUser | null }) {
                 <MobileLink href="/" label="Home" active={isActive("/")} onClick={() => setOpen(false)} />
                 <p className="mt-4 px-3 pb-1 text-[11px] font-semibold uppercase tracking-[0.1em] text-muted">Our Product</p>
                 {[...PRODUCT_LINKS, MARKETPLACE_LINK].map((l) => {
-                  const Icon = l.icon;
                   return (
                     <Link
                       key={l.href}
                       href={l.href}
                       onClick={() => setOpen(false)}
                       className={cn(
-                        "flex items-center gap-3 rounded-2xl px-3 py-2.5",
+                        "group flex items-center gap-3 rounded-2xl px-3 py-2.5",
                         isActive(l.href) ? "bg-brand-50 text-brand-800" : "text-ink hover:bg-black/[0.03]",
                       )}
                     >
-                      <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-brand-400 to-brand-500 text-white">
-                        <Icon className="size-4" />
-                      </span>
+                      <Icon3D name={l.icon} size={36} float={false} />
                       <span className="text-[15px] font-medium">{l.label}</span>
                     </Link>
                   );
@@ -298,7 +281,7 @@ function ProductMenu({ active }: { active: boolean }) {
             className="group mt-1 flex items-center justify-between gap-3 rounded-2xl bg-gradient-to-r from-brand-50 to-white/40 px-4 py-3 transition-colors hover:from-brand-100"
           >
             <span className="flex items-center gap-3">
-              <Store className="size-4 text-brand-600" />
+              <Icon3D name={MARKETPLACE_LINK.icon} size={30} float={false} />
               <span>
                 <span className="block text-sm font-semibold text-ink">{MARKETPLACE_LINK.label}</span>
                 <span className="block text-xs text-subtle">{MARKETPLACE_LINK.body}</span>
@@ -313,11 +296,10 @@ function ProductMenu({ active }: { active: boolean }) {
 }
 
 function ProductItem({ link, onNavigate }: { link: ProductLink; onNavigate: () => void }) {
-  const Icon = link.icon;
   return (
-    <Link href={link.href} onClick={onNavigate} className="group flex gap-3 rounded-2xl p-3 transition-colors hover:bg-white/80">
-      <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-brand-400 to-brand-500 text-white shadow-[0_6px_14px_-6px_rgb(244_119_53/0.7)] transition-transform group-hover:scale-105">
-        <Icon className="size-[18px]" />
+    <Link href={link.href} onClick={onNavigate} className="group flex items-start gap-3 rounded-2xl p-3 transition-colors hover:bg-white/80">
+      <span className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-b from-white to-brand-50 shadow-[inset_0_1px_0_white,0_6px_14px_-8px_rgb(244_119_53/0.5)]">
+        <Icon3D name={link.icon} size={36} float={false} />
       </span>
       <span>
         <span className="block text-sm font-semibold text-ink">{link.label}</span>

@@ -1,13 +1,14 @@
 import Link from "next/link";
-import { ArrowRight, BarChart3, Briefcase, FolderKanban, Inbox, Search, UsersRound } from "lucide-react";
+import { ArrowRight } from "lucide-react";
+import { Icon3D, type Icon3DName } from "@/components/brand/icon-3d";
 
-const FEATURES = [
-  { icon: UsersRound, title: "Centralized Talent Management", body: "Creators, affiliates and sales reps in one roster." },
-  { icon: Briefcase, title: "Agency Portfolio", body: "Present services, case work and team size." },
-  { icon: Inbox, title: "Opportunity Inbox", body: "Business briefs that match your services." },
-  { icon: BarChart3, title: "Team Performance Tracking", body: "See output and results across clients." },
-  { icon: FolderKanban, title: "Partnership Management", body: "Every client campaign and its status." },
-  { icon: Search, title: "Business Discovery", body: "Find brands actively looking for partners." },
+const FEATURES: { icon: Icon3DName; title: string; body: string }[] = [
+  { icon: "busts_in_silhouette", title: "Centralized Talent Management", body: "Creators, affiliates and sales reps in one roster." },
+  { icon: "briefcase", title: "Agency Portfolio", body: "Present services, case work and team size." },
+  { icon: "inbox_tray", title: "Opportunity Inbox", body: "Business briefs that match your services." },
+  { icon: "bar_chart", title: "Team Performance Tracking", body: "See output and results across clients." },
+  { icon: "handshake", title: "Partnership Management", body: "Every client campaign and its status." },
+  { icon: "telescope", title: "Business Discovery", body: "Find brands actively looking for partners." },
 ];
 
 const ROSTER = [
@@ -35,12 +36,11 @@ export function AgencySection() {
           </div>
 
           <div className="relative mx-auto mt-12 grid max-w-4xl gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {FEATURES.map((f) => {
-              const Icon = f.icon;
+            {FEATURES.map((f, i) => {
               return (
-                <div key={f.title} className="flex flex-col items-center rounded-3xl border border-white/30 bg-white/12 p-5 backdrop-blur-md transition-colors hover:bg-white/20">
-                  <span className="flex size-10 items-center justify-center rounded-2xl bg-white/90 text-brand-600">
-                    <Icon className="size-[18px]" />
+                <div key={f.title} className="group flex flex-col items-center rounded-3xl border border-white/30 bg-white/12 p-5 backdrop-blur-md transition-colors hover:bg-white/20">
+                  <span className="flex size-16 items-center justify-center rounded-[1.25rem] border border-white/70 bg-white/90 shadow-[inset_0_1px_0_white,0_10px_24px_-12px_rgb(0_0_0/0.35)]">
+                    <Icon3D name={f.icon} size={44} delay={i * 1.1} />
                   </span>
                   <p className="mt-3 text-sm font-semibold">{f.title}</p>
                   <p className="mt-1 text-[13px] leading-snug text-white/80">{f.body}</p>

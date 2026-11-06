@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ArrowRight, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { HeroVisual } from "./hero-visual";
+import { HeroMedia } from "./hero-media";
 
 const TRUST = ["Free registration", "Multiple partnership opportunities", "Built for businesses and professionals"];
 
@@ -49,7 +49,7 @@ export function Hero() {
       </div>
 
       <div className="mx-auto mt-16 max-w-5xl">
-        <HeroVisual />
+        <HeroMedia />
       </div>
     </section>
   );

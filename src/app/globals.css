@@ -246,6 +246,24 @@
   animation: shine-text 8s ease-in-out infinite;
 }
 
+@keyframes progress {
+  from {
+    width: 0%;
+  }
+  to {
+    width: 100%;
+  }
+}
+
+@keyframes ken-burns {
+  from {
+    transform: scale(1.08);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
 @keyframes shine-text {
   0%,
   100% {

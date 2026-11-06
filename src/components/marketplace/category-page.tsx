@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowRight, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Icon3D } from "@/components/brand/icon-3d";
 import { CATEGORY_META } from "@/lib/constants";
 import type { MarketCategory } from "@/lib/types";
 import { countOpportunitiesByCategory, searchOpportunities, searchPartners } from "@/lib/data/queries";
@@ -17,7 +18,6 @@ import { PartnerResults } from "./partner-results";
 export async function CategoryPage({ category, searchParams }: { category: MarketCategory; searchParams: RawSearchParams }) {
   const meta = CATEGORY_META[category];
   const cfg = CATEGORY_CONFIG[category];
-  const Icon = cfg.icon;
   const view = firstParam(searchParams.view) === "partners" ? "partners" : "opportunities";
 
   const [viewer, taxonomies, counts] = await Promise.all([getViewerContext(), getTaxonomies(), countOpportunitiesByCategory()]);
@@ -67,9 +67,7 @@ export async function CategoryPage({ category, searchParams }: { category: Marke
 
           <div className="mt-6 flex flex-col items-center gap-5 text-center">
             <div className="flex max-w-2xl flex-col items-center gap-4">
-              <span className="flex size-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-400 to-brand-600 text-white shadow-[0_12px_24px_-10px_rgb(244_119_53/0.8)]">
-                <Icon className="size-6" />
-              </span>
+              <Icon3D name={cfg.icon3d} size={72} />
               <div>
                 <h1 className="text-[32px] font-semibold tracking-[-0.03em] text-ink sm:text-[44px]">{meta.label}</h1>
                 <p className="mt-2 text-[15px] leading-relaxed text-subtle">{cfg.description}</p>

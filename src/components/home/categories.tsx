@@ -1,16 +1,17 @@
 import Link from "next/link";
-import { ArrowRight, Handshake, Megaphone, TrendingUp, type LucideIcon } from "lucide-react";
+import { ArrowRight } from "lucide-react";
+import { Icon3D, type Icon3DName } from "@/components/brand/icon-3d";
 import { SectionHeading } from "@/components/ui/primitives";
 
 type Example = { title: string; meta: string; comp: string };
 
-const CATEGORIES: { id: string; title: string; description: string; href: string; icon: LucideIcon; examples: Example[] }[] = [
+const CATEGORIES: { id: string; title: string; description: string; href: string; icon: Icon3DName; examples: Example[] }[] = [
   {
     id: "sales",
     title: "Sales & Distribution",
     description: "Connect with businesses looking for sales representatives, agents, and distributors across different regions.",
     href: "/marketplace/sales",
-    icon: TrendingUp,
+    icon: "delivery_truck",
     examples: [
       { title: "Regional Sales Representative", meta: "F&B · Surabaya", comp: "Retainer + commission" },
       { title: "Distributor Partnership", meta: "FMCG · Medan", comp: "Distributor margin" },
@@ -23,7 +24,7 @@ const CATEGORIES: { id: string; title: string; description: string; href: string
     title: "Affiliate Marketing",
     description: "Discover affiliate programs and collaborate with brands through performance-based marketing.",
     href: "/marketplace/affiliate",
-    icon: Handshake,
+    icon: "link",
     examples: [
       { title: "Affiliate Program", meta: "Beauty · Remote", comp: "Commission per order" },
       { title: "Product Promotion", meta: "FMCG · Live selling", comp: "Fee + commission" },
@@ -36,7 +37,7 @@ const CATEGORIES: { id: string; title: string; description: string; href: string
     title: "KOL & Creator Collaboration",
     description: "Find brands, paid campaigns, and content collaboration opportunities.",
     href: "/marketplace/kol",
-    icon: Megaphone,
+    icon: "megaphone",
     examples: [
       { title: "Instagram Campaign", meta: "Home & Living · Reels", comp: "Fixed fee + products" },
       { title: "TikTok Content Collaboration", meta: "F&B · 2 videos", comp: "Fixed fee" },
@@ -56,13 +57,10 @@ export function Categories() {
           description="Three marketplaces, one account. Every listing shows its compensation model, requirements and deliverables up front."
         />
         <div className="mt-14 grid grid-cols-1 gap-5 lg:grid-cols-3">
-          {CATEGORIES.map((c) => {
-            const Icon = c.icon;
+          {CATEGORIES.map((c, i) => {
             return (
-              <div key={c.id} className="glass flex flex-col items-center rounded-[1.75rem] p-6 text-center sm:p-7">
-                <span className="flex size-12 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-400 to-brand-600 text-white shadow-[0_12px_24px_-10px_rgb(244_119_53/0.8)]">
-                  <Icon className="size-5" />
-                </span>
+              <div key={c.id} className="glass group flex flex-col items-center rounded-[1.75rem] p-6 text-center sm:p-7">
+                <Icon3D name={c.icon} size={72} delay={i * 1.7} />
                 <h3 className="mt-5 text-xl font-semibold text-ink">{c.title}</h3>
                 <p className="mt-2 max-w-xs text-sm leading-relaxed text-subtle">{c.description}</p>
                 <ul className="mt-6 w-full space-y-2">

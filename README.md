@@ -194,6 +194,11 @@ No credentials are committed or invented anywhere in the code.
 
 ---
 
+## Media and icon credits
+
+- Hero video clips in `public/media` come from Pexels (Pexels License, free for commercial use). Creators are listed in `public/media/CREDITS.md`.
+- The 3D icons in `public/icons/3d` are Microsoft Fluent Emoji (MIT License). Keep `public/icons/3d/LICENSE` alongside them.
+
 ## What is not live yet
 
 - **Accounts:** sign-up and login are handled by the app (scrypt hashes in Postgres plus a signed session cookie), not yet by Supabase Auth, so there are no confirmation or reset emails.

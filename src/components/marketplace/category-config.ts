@@ -1,9 +1,12 @@
 import { Building2, Handshake, Link2, Megaphone, type LucideIcon } from "lucide-react";
+import type { Icon3DName } from "@/components/brand/icon-3d";
 import type { MarketCategory } from "@/lib/types";
 import type { PartnerKind } from "./filter-params";
 
 export type CategoryConfig = {
   icon: LucideIcon;
+  /** Illustrated 3D icon for tiles and headers. */
+  icon3d: Icon3DName;
   description: string;
   /** Directory searched on the "Partners" tab. */
   partnerKind: PartnerKind;
@@ -17,6 +20,7 @@ export type CategoryConfig = {
 export const CATEGORY_CONFIG: Record<MarketCategory, CategoryConfig> = {
   sales: {
     icon: Handshake,
+    icon3d: "delivery_truck",
     description:
       "Connect with businesses looking for sales representatives, agents, and distributors across different regions.",
     partnerKind: "sales",
@@ -26,6 +30,7 @@ export const CATEGORY_CONFIG: Record<MarketCategory, CategoryConfig> = {
   },
   affiliate: {
     icon: Link2,
+    icon3d: "link",
     description: "Discover affiliate programs and collaborate with brands through performance-based marketing.",
     partnerKind: "creator",
     partnerLabel: "Affiliate marketers",
@@ -35,6 +40,7 @@ export const CATEGORY_CONFIG: Record<MarketCategory, CategoryConfig> = {
   },
   kol: {
     icon: Megaphone,
+    icon3d: "megaphone",
     description: "Find brands, paid campaigns, and content collaboration opportunities.",
     partnerKind: "creator",
     partnerLabel: "Creators & KOLs",
@@ -43,6 +49,7 @@ export const CATEGORY_CONFIG: Record<MarketCategory, CategoryConfig> = {
   },
   agency: {
     icon: Building2,
+    icon3d: "busts_in_silhouette",
     description:
       "Partner with agencies that run campaigns, manage creator rosters, and supply sales teams, or find brands looking for agency support.",
     partnerKind: "agency",
